@@ -1,4 +1,4 @@
-abstract class NovaPlugin {
+export default abstract class NovaPlugin {
     
     abstract getKeywords(): string[];
 
