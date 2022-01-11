@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 
-	data "github.com/jmcrumb/nova/data"
-	nlp "github.com/jmcrumb/nova/nlp"
+	"github.com/jmcrumb/nova/data"
+	"github.com/jmcrumb/nova/nlp"
 )
 
 func main() {
 	fmt.Println("Hello NOVA backend")
 
 	nlp.Test()
-	data.Test()
+	fmt.Println(data.Times2N(1, 4))
 }
