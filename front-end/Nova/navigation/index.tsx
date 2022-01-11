@@ -14,10 +14,12 @@ import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
-import TabOneScreen from '../screens/TabOneScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
+import AssistantViewScreen from '../screens/AssistantViewScreen';
+import PluginViewScreen from '../screens/PluginViewScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
+import DeveloperViewScreen from '../screens/DeveloperViewScreen';
+import AccountViewScreen from '../screens/AccountViewScreen';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -58,15 +60,15 @@ function BottomTabNavigator() {
 
   return (
     <BottomTab.Navigator
-      initialRouteName="TabOne"
+      initialRouteName="AssistantView"
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme].tint,
       }}>
       <BottomTab.Screen
-        name="TabOne"
-        component={TabOneScreen}
-        options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
-          title: 'Tab One',
+        name="AssistantView"
+        component={AssistantViewScreen}
+        options={({ navigation }: RootTabScreenProps<'AssistantView'>) => ({
+          title: 'NOVA',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerRight: () => (
             <Pressable
@@ -85,10 +87,26 @@ function BottomTabNavigator() {
         })}
       />
       <BottomTab.Screen
-        name="TabTwo"
-        component={TabTwoScreen}
+        name="PluginView"
+        component={PluginViewScreen}
         options={{
-          title: 'Tab Two',
+          title: 'Plugins',
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        }}
+      />
+      <BottomTab.Screen
+        name="DeveloperView"
+        component={DeveloperViewScreen}
+        options={{
+          title: 'Developers',
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        }}
+      />
+      <BottomTab.Screen
+        name="AccountView"
+        component={AccountViewScreen}
+        options={{
+          title: 'Account',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />
