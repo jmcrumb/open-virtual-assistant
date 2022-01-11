@@ -1,7 +1,5 @@
 package data
 
-import "fmt"
-
-func Test() {
-	fmt.Println("Data called")
+func Times2N(a, e int) int {
+	return a << e
 }

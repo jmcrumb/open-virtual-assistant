@@ -11,5 +11,5 @@ func main() {
 	fmt.Println("Hello NOVA backend")
 
 	nlp.Test()
-	data.Test()
+	fmt.Println(data.Times2N(1, 4))
 }
