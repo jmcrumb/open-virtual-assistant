@@ -1,9 +1,9 @@
-import NovaPlugin from './abstractPlugin';
+import NovaPlugin from '../abstractPlugin';
 
 export default class HelloWorldPlugin extends NovaPlugin {
 
     getKeywords(): string[] {
-        return ['Hello', 'Hi', 'Howdy'];
+        return ['hello', 'hi', 'howdy', 'hello there'];
     }
 
     execute(command: string): string {
