@@ -9,5 +9,9 @@ export default abstract class NovaPlugin {
     requestHistory(): string[] {
         return [];
     }
+
+    toString(): string {
+        return this.constructor.name;
+    }
     
 }
