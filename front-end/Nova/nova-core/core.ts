@@ -30,7 +30,6 @@ export default class NovaCore {
     }
 
     querySyntaxTree(command: string): NovaPlugin {
-        let tokenizedCommand: string[] = command.split(' ');
         return this.syntaxTree.matchCommand(command);
     }
 }
@@ -54,7 +53,7 @@ class SyntaxTree {
                 branch = branch[tokenizedKeywords[i]];
             }
             // TODO: Catch this error at the UI layer
-            if('plugin' in branch[tokenizedKeywords[tokenizedKeywords.length - 1]]) {
+            if(branch[tokenizedKeywords[tokenizedKeywords.length - 1]] && 'plugin' in branch[tokenizedKeywords[tokenizedKeywords.length - 1]]) {
                 throw new Error(`Keyword Conflict. Plugin already exists at the keyword ${keyword}`);
             }
             branch[tokenizedKeywords[tokenizedKeywords.length - 1]] = {'plugin': plugin};
