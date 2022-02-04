@@ -5,10 +5,6 @@ import (
 	"github.com/jmcrumb/nova/nlp"
 )
 
-type User struct {
-	Name string
-}
-
 func main() {
 	router := gin.Default()
 
@@ -20,12 +16,7 @@ func main() {
 
 	// route plugin store api
 
-	// m := autocert.Manager{
-	// 	Prompt: autocert.AcceptTOS,
-	// 	HostPolicy: autocert.HostWhitelist("localhost"), // absolutely need to use this once CA is used
-	// }
-
 	router.SetTrustedProxies([]string{"localhost"})
 	router.RunTLS(":443", "server.crt", "server.key")
-	// log.Fatal(autotls.RunWithManager(router, &m))
+	// log.Fatal(autotls.Run(router)) // use this instead of lines above when LetsEncrypt is configured
 }
