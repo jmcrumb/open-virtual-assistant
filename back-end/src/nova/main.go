@@ -1,15 +1,20 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/jmcrumb/nova/data"
+	"github.com/gin-gonic/gin"
 	"github.com/jmcrumb/nova/nlp"
 )
 
 func main() {
-	fmt.Println("Hello NOVA backend")
+	router := gin.Default()
 
-	nlp.Test()
-	fmt.Println(data.Times2N(1, 4))
+	// route NLP api
+	group := router.Group("/nlp")
+	nlp.Route(group)
+
+	// route account database
+
+	// route plugin store api
+
+	router.Run()
 }
