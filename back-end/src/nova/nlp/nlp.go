@@ -14,7 +14,10 @@ func getTTS(c *gin.Context) {
 	var body ttsBody
 
 	if err := c.BindJSON(&body); err != nil {
-		c.String(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, "unable to unmarhsall request body")
+		return
+	} else if body.Text == "" {
+		c.String(http.StatusBadRequest, "empty 'text' field in json request")
 		return
 	}
 
