@@ -6,14 +6,15 @@ import HelloWorldPlugin from './plugins/HelloWorldPlugin';
 export default class NovaCore {
     syntaxTree: SyntaxTree;
     plugins: NovaPlugin[];
-    currentPlugin: NovaPlugin | null | undefined;
+    currentPlugin: NovaPlugin;
 
     constructor() {
         // TODO: Replace mock data with actual data.
         this.plugins = [
             new HelloWorldPlugin(),
         ];
-        this.syntaxTree = new SyntaxTree(new CommandNotFoundPlugin());
+        this.currentPlugin = new CommandNotFoundPlugin();
+        this.syntaxTree = new SyntaxTree(this.currentPlugin);
         this.initializePlugins();
     }
 
@@ -25,8 +26,20 @@ export default class NovaCore {
 
     invoke(input: any): any {
         let command: string = NaturalLanguageProcessingAPI.speechToText(input).toLowerCase();
-        this.currentPlugin = this.querySyntaxTree(command);
-        return NaturalLanguageProcessingAPI.textToSpeech(this.currentPlugin.execute(command));
+        let plugin: NovaPlugin = this.querySyntaxTree(command);
+        let response: string | undefined = undefined;
+
+        if(plugin instanceof CommandNotFoundPlugin) {
+            response = this.currentPlugin.executeSecondaryCommnand(command);
+            if(response == undefined) {
+                response = plugin.execute(command);
+            }
+        } else {
+            response = plugin.execute(command);
+            this.currentPlugin = plugin;
+        }
+        
+        return NaturalLanguageProcessingAPI.textToSpeech(response);
     }
 
     querySyntaxTree(command: string): NovaPlugin {
@@ -47,6 +60,7 @@ class SyntaxTree {
     addPlugin(plugin: NovaPlugin) {
         let keywords: string[] = plugin.getKeywords();
         let branch = this.root;
+        
         for(let keyword of keywords) {
             let tokenizedKeywords: string[] = keyword.split(' ')
             for(let i = 0; i < tokenizedKeywords.length - 1; i++) {
@@ -72,7 +86,6 @@ class SyntaxTree {
                 if(depth > max) max = depth;
             }
         }
-        // TODO: expand this conditional to check for secondary keywords when implementing
         return this.hits.length > 0 ? this.hits[max][0] : this.notFound;
     }
     
