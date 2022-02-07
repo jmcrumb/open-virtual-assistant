@@ -1,48 +1,51 @@
-// package database
+package database
 
-// import (
-//     "database/sql"
-//     "fmt"
-//     _ "github.com/lib/pq"
-// )
+import (
+	"fmt"
 
-// const (
-//     host     = "localhost"
-//     port     = 5432
-//     user     = "postgres"
-//     password = "usdnova"
-//     dbname   = "postgres"
-// )
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+)
 
-// func setupDB() *sql.DB {
-//     psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-    
-//     // open database
-//     db, err := sql.Open("postgres", psqlconn)
-//     CheckError(err)
-     
-//         // close database
-//     defer db.Close()
- 
-//         // check db
-//     err = db.Ping()
-//     CheckError(err)
- 
-//     fmt.Println("Connected!")
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	password = "usdnova"
+	dbname   = "postgres"
+)
 
-//     return db
-// }
+var DB *gorm.DB
 
-// func CheckError(err error) {
-//     if err != nil {
-//         panic(err)
-//     }
-// }
+func SetupDB() error {
+	var err error
 
-// func Test() {
-// 	fmt.Println("NLP Called")
-// 	db := setupDB()
-// 	fmt.Printf("Database setup: %t\n", (db != nil))
-// }
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
+	return err
+}
 
+type Account struct {
+	ID         string `json:"id"`
+	Password   string `json:"password"`
+	FirstName  string `json:"first_name"`
+	LastName   string `json:"last_name"`
+	Email      string `json:"email"`
+	LastLogin  string `json:"last_login"`
+	DateJoined string `json:"date_joined"`
+	IsAdmin    bool   `json:"is_admin"`
+}
+
+type NewAccount struct {
+	Password  string `json:"password"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+}
+
+type Profile struct {
+	AccountID string `json:"account_id"`
+	Bio       string `json:"bio"`
+	Photo     []byte `json:"photo"`
+}
