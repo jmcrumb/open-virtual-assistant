@@ -3,18 +3,21 @@
 
 -- To DELETE all existing database content uncomment following lines:
 
--- DROP SCHEMA public CASCADE;
--- CREATE SCHEMA public;
--- GRANT ALL ON SCHEMA public TO postgres;
--- GRANT ALL ON SCHEMA public TO public;
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Creating the tables
 CREATE TABLE account (
-    id UUID,
+    id UUID DEFAULT uuid_generate_v4 (),
     password varchar(50) NOT NULL,
     first_name varchar(50) NOT NULL,
     last_name varchar(50) NOT NULL,
-    email varchar(50) NOT NULL,
+    email varchar(50) NOT NULL UNIQUE,
     last_login timestamp DEFAULT CURRENT_TIMESTAMP,
     date_joined date DEFAULT CURRENT_DATE,
     is_admin boolean DEFAULT false,
@@ -33,7 +36,7 @@ CREATE TABLE profile (
 );
 
 CREATE TABLE plugin (
-    id UUID,
+    id UUID DEFAULT uuid_generate_v4 (),
     publisher UUID NOT NULL,
     source_link varchar(150) NOT NULL,
     about text DEFAULT '',
@@ -46,7 +49,7 @@ CREATE TABLE plugin (
 );
 
 CREATE TABLE review (
-    id UUID,
+    id UUID DEFAULT uuid_generate_v4 (),
     source_review UUID DEFAULT NULL,
     account UUID NOT NULL,
     plugin UUID NOT NULL,
@@ -65,7 +68,7 @@ CREATE TABLE review (
 );
 
 CREATE TABLE report (
-    id UUID,
+    id UUID DEFAULT uuid_generate_v4 (),
     account UUID NOT NULL,
     plugin UUID NOT NULL,
     content text NOT NULL,
