@@ -10,8 +10,8 @@ export default class HelloWorldPlugin extends NovaPlugin {
         return 'Hello! My name is Nova.';
     }
 
-    executeSecondaryCommnand(command: string): string {
-        return 'To teach me more fun things to do, go to the plugin store.';
+    executeSecondaryCommnand(command: string): string | undefined {
+        return command == 'nice to meet you' ? 'To teach me more fun things to do, go to the plugin store.': undefined;
     }
 
 }
