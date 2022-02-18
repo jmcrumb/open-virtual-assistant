@@ -69,7 +69,7 @@ func putProfile(c *gin.Context) {
 		return
 	}
 
-	database.DB.Table("profle").Where("account_id = ?", body.AccountID).Select("Bio", "Photo").Updates(&body)
+	database.DB.Table("profile").Where("account_id = ?", body.AccountID).Select("Bio", "Photo").Updates(&body)
 	c.Status(http.StatusCreated)
 }
 
