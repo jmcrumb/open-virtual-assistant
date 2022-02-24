@@ -49,3 +49,12 @@ type Profile struct {
 	Bio       string `json:"bio"`
 	Photo     []byte `json:"photo"`
 }
+
+type Plugin struct {
+	ID            string `json:"id"`
+	Publisher     string `json:"publisher"`
+	SourceLink    string `json:"source_link"`
+	About         string `json:"about"`
+	DownloadCount int    `json:"download_count"`
+	PublishedOn   string `json:"published_on"`
+}
