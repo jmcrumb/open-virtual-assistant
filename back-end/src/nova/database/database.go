@@ -49,3 +49,9 @@ type Profile struct {
 	Bio       string `json:"bio"`
 	Photo     []byte `json:"photo"`
 }
+
+type UpdatePassword struct {
+	AccountID   string `json:"account_id"`
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
