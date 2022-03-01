@@ -1,49 +1,29 @@
 package plugins
 
 import (
-	"database/sql"
 	"log"
+	"os"
 	"regexp"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmcrumb/nova/database"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
-type Suite struct {
-	db     *gorm.DB
-	mock   sqlmock.Sqlmock
-	mockDB *sql.DB
-}
+func TestMain(m *testing.M) {
+	os.Setenv("TEST_DB", "true")
 
-func NewSuite() *Suite {
-	var (
-		s   Suite
-		err error
-	)
+	log.Printf("Beginning tests")
+	exitVal := m.Run()
+	database.TestSuite.MockDB.Close()
 
-	s.mockDB, s.mock, err = sqlmock.New()
-	if err != nil {
-		log.Fatalf("failed to create database connection: %v", err)
-	}
-
-	s.db, err = gorm.Open(postgres.New(postgres.Config{
-		Conn: s.mockDB,
-	}), &gorm.Config{})
-	if err != nil {
-		log.Fatalf("failed to open postgres database: %v", err)
-	}
-
-	s.db.Logger.LogMode(logger.Info)
-	return &s
+	os.Exit(exitVal)
 }
 
 func TestPostPlugin(t *testing.T) {
-	s := NewSuite()
-	defer s.mockDB.Close()
+	s := database.TestSuite
+	s.Setup()
+	defer s.Teardown()
 	tests := []database.Plugin{
 		{
 			ID:         "12345",
@@ -63,18 +43,18 @@ func TestPostPlugin(t *testing.T) {
 		`INSERT INTO \"plugin\" (\"id\", \"publisher\", \"source_link\", \"about\", \"download_count\", \"published_on\"
 		VALUES (?,?,?,?,?,?) RETURNING \"plugin\"`)
 	for _, test := range tests {
-		s.mock.ExpectQuery(query).
+		s.Mock.ExpectQuery(query).
 			WithArgs(test.ID, test.Publisher, test.SourceLink, test.About, test.DownloadCount, test.PublishedOn).
 			WillReturnRows(
 				sqlmock.NewRows([]string{"id", "publisher", "source_link", "about", "download_count", "published_on"}).
 					AddRow(test.ID, test.Publisher, test.SourceLink, test.About, test.DownloadCount, test.PublishedOn),
 			)
 
-		s.db.Exec(query, test.ID, test.Publisher, test.SourceLink)
-		err := s.db.Table("plugin").Create(&test).Error
+		s.DB.Exec(query, test.ID, test.Publisher, test.SourceLink)
+		err := s.DB.Table("plugin").Create(&test).Error
 		if err != nil {
 			t.Errorf("Query failed: %v", err)
-		} else if err := s.mock.ExpectationsWereMet(); err != nil {
+		} else if err := s.Mock.ExpectationsWereMet(); err != nil {
 			t.Errorf("there were unfulfilled expectations: %v", err)
 		}
 	}

@@ -3,16 +3,10 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmcrumb/nova/accounts"
-	"github.com/jmcrumb/nova/database"
 	"github.com/jmcrumb/nova/nlp"
 )
 
 func main() {
-	err := database.SetupDB()
-	if err != nil {
-		panic("failed to connect database")
-	}
-
 	router := gin.Default()
 
 	// route NLP api
