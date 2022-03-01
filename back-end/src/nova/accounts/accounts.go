@@ -4,11 +4,18 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jmcrumb/nova/auth"
 	"github.com/jmcrumb/nova/database"
+	"github.com/jmcrumb/nova/middleware"
 )
 
 func getAccountByID(c *gin.Context) {
 	id := c.Param("id")
+
+	if id != auth.GetMiddlewareAuthenticatedAccountID(c) {
+		c.String(http.StatusUnauthorized, "Permission Denied")
+		return
+	}
 
 	var account database.Account
 	database.DB.Table("account").Where("id = ?", id).First(&account)
@@ -40,6 +47,9 @@ func postAccount(c *gin.Context) {
 		return
 	}
 
+	// Secure password
+	body.Password = auth.HashPassword(body.Password)
+
 	database.DB.Table("account").Create(&body)
 	database.DB.Table("account").Where("email = ?", body.Email).First(&accountResult)
 	database.DB.Table("profile").Create(&database.Profile{
@@ -57,8 +67,32 @@ func putAccount(c *gin.Context) {
 		return
 	}
 
-	database.DB.Table("account").Where("id = ?", body.ID).Select("FirstName", "Email", "LastName", "Password").Updates(&body)
+	database.DB.Table("account").Where("id = ?", body.ID).Select("FirstName", "Email", "LastName").Updates(&body)
 	c.Status(http.StatusCreated)
+}
+
+func putAccountPassword(c *gin.Context) {
+	var body database.UpdatePassword
+	var account database.Account
+
+	if err := c.BindJSON(&body); err != nil {
+		c.String(http.StatusBadRequest, "unable to unmarhsall request body")
+		return
+	}
+
+	accountDB := database.DB.Table("account").Where("id = ?", body.AccountID)
+	if err := accountDB.First(&account).Error; err != nil {
+		c.String(http.StatusBadRequest, "incorrect information")
+		return
+	}
+
+	err := auth.ResetPassword(account, body.OldPassword, body.NewPassword)
+	if err == nil {
+		accountDB.Update("password", body.NewPassword)
+		c.Status(http.StatusCreated)
+		return
+	}
+	c.String(http.StatusBadRequest, "incorrect information")
 }
 
 func putProfile(c *gin.Context) {
@@ -74,9 +108,10 @@ func putProfile(c *gin.Context) {
 }
 
 func Route(router *gin.RouterGroup) {
-	router.GET("/:id", getAccountByID)
+	router.GET("/:id", middleware.AuthorizeJWT(), getAccountByID)
 	router.POST("/", postAccount)
 	router.PUT("/", putAccount)
+	router.POST("/reset-password", putAccountPassword)
 
 	router.GET("/profile/:id", getProfileByID)
 	router.PUT("/profile", putProfile)

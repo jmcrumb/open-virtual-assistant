@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmcrumb/nova/accounts"
+	"github.com/jmcrumb/nova/auth"
 	"github.com/jmcrumb/nova/database"
 	"github.com/jmcrumb/nova/nlp"
 )
@@ -14,6 +15,10 @@ func main() {
 	}
 
 	router := gin.Default()
+
+	// route authorization API
+	authGroup := router.Group("/auth")
+	auth.Route(authGroup)
 
 	// route NLP api
 	nlpGroup := router.Group("/nlp")
