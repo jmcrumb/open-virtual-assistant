@@ -4,12 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 const (
@@ -26,42 +24,44 @@ type Suite struct {
 	MockDB *sql.DB
 }
 
-func (*Suite) Setup() {
-	DB.Exec(`\i <project root path>database_INIT.sql`)
+func (s *Suite) Setup() {
+	s.Mock.ExpectExec(DBInit).WithArgs()
+	s.DB.Exec(DBInit)
 }
-func (*Suite) Teardown() {
-	DB.Exec(`DROP ALL TABLES PLEASE`)
+func (s *Suite) Teardown() {
+	s.Mock.ExpectExec(DBTeardown).WithArgs()
+	s.DB.Exec(DBTeardown)
 }
 
 var TestSuite *Suite
 var DB *gorm.DB
 
-func init() {
+func SetupTestDB() {
 	var err error
+	TestSuite = new(Suite)
+	TestSuite.MockDB, TestSuite.Mock, err = sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		log.Fatalf("failed to create database connection: %v", err)
+	}
 
-	if _, exists := os.LookupEnv("TEST_DB"); exists {
-		TestSuite = new(Suite)
-		TestSuite.MockDB, TestSuite.Mock, err = sqlmock.New()
-		if err != nil {
-			log.Fatalf("failed to create database connection: %v", err)
-		}
+	TestSuite.DB, err = gorm.Open(postgres.New(postgres.Config{
+		Conn: TestSuite.MockDB,
+	}), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("failed to open postgres database: %v", err)
+	}
 
-		TestSuite.DB, err = gorm.Open(postgres.New(postgres.Config{
-			Conn: TestSuite.MockDB,
-		}), &gorm.Config{})
-		if err != nil {
-			log.Fatalf("failed to open postgres database: %v", err)
-		}
+	// TestSuite.DB.Logger.LogMode(logger.Info)
+	DB = TestSuite.DB
+}
 
-		TestSuite.DB.Logger.LogMode(logger.Info)
-		DB = TestSuite.DB
-	} else {
-		dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-		DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func SetupDB() {
+	var err error
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
-		if err != nil {
-			panic("failed to connect database")
-		}
+	if err != nil {
+		log.Fatal("failed to connect database")
 	}
 }
 

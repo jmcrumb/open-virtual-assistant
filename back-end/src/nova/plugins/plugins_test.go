@@ -1,7 +1,6 @@
 package plugins
 
 import (
-	"log"
 	"os"
 	"regexp"
 	"testing"
@@ -11,9 +10,9 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	os.Setenv("TEST_DB", "true")
+	database.SetupTestDB()
+	database.TestSuite.Setup()
 
-	log.Printf("Beginning tests")
 	exitVal := m.Run()
 	database.TestSuite.MockDB.Close()
 
@@ -22,21 +21,21 @@ func TestMain(m *testing.M) {
 
 func TestPostPlugin(t *testing.T) {
 	s := database.TestSuite
-	s.Setup()
-	defer s.Teardown()
+	s.Teardown()
+
 	tests := []database.Plugin{
-		{
-			ID:         "12345",
-			SourceLink: "https://plugin.com",
-		},
-		{
-			ID:            "123",
-			Publisher:     "maxon",
-			SourceLink:    "github.com/maxon/plugin",
-			About:         "a great plugin with many featurers",
-			DownloadCount: 500,
-			PublishedOn:   "2/22/22 22:22:22",
-		},
+		// {
+		// 	ID:         "12345",
+		// 	SourceLink: "https://plugin.com",
+		// },
+		// {
+		// 	ID:            "123",
+		// 	Publisher:     "maxon",
+		// 	SourceLink:    "github.com/maxon/plugin",
+		// 	About:         "a great plugin with many featurers",
+		// 	DownloadCount: 500,
+		// 	PublishedOn:   "2/22/22 22:22:22",
+		// },
 	}
 
 	query := regexp.QuoteMeta(
