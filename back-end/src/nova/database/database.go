@@ -49,3 +49,33 @@ type Profile struct {
 	Bio       string `json:"bio"`
 	Photo     []byte `json:"photo"`
 }
+
+type Review struct {
+	ID string `json:"id"`
+	SourceReview string `json:"source_review"`
+	Account string `json:"account"`
+	Plugin string `json:"plugin"`
+	Rating float32 `json:"rating"`
+	Content string `json:"content"`
+}
+
+type NewReview struct {
+	SourceReview string `json:"source_review"`
+	Account string `json:"account"`
+	Plugin string `json:"plugin"`
+	Rating float32 `json:"rating"`
+	Content string `json:"content"`
+}
+
+type Report struct {
+	ID string `json:"id"`
+	Account string `json:"account"`
+	Plugin string `json:"plugin"`
+	Content string `json:"content"`
+}
+
+type NewReport struct {
+	Account string `json:"account"`
+	Plugin string `json:"plugin"`
+	Content string `json:"content"`
+}
