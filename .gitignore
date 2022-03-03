@@ -35,3 +35,7 @@ web-build/
 
 # VS Code
 .vscode/
+
+# Nova Core
+nova-core/venv/
+__pycache__/
