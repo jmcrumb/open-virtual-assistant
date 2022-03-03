@@ -38,7 +38,7 @@ CREATE TABLE profile (
 CREATE TABLE plugin (
     id UUID DEFAULT uuid_generate_v4 (),
     publisher UUID NOT NULL,
-    source_link varchar(150) NOT NULL,
+    source_link varchar(150) NOT NULL UNIQUE,
     about text DEFAULT '',
     download_count integer DEFAULT 0,
     published_on date DEFAULT CURRENT_DATE,

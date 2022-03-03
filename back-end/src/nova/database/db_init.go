@@ -81,7 +81,5 @@ CREATE TABLE report (
         FOREIGN KEY(plugin)
         REFERENCES plugin(id)
 );
-
-\dt;
 `
 )

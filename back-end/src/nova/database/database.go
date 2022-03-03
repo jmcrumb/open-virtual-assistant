@@ -97,3 +97,9 @@ type Plugin struct {
 	DownloadCount int    `json:"download_count"`
 	PublishedOn   string `json:"published_on"`
 }
+
+type NewPlugin struct {
+	Publisher  string `json:"publisher"`
+	SourceLink string `json:"source_link"`
+	About      string `json:"about"`
+}
