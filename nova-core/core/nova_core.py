@@ -162,8 +162,7 @@ class NovaCore:
         command: str = nlp.speech_to_text(input_).lower()
 
         plugin: NovaPlugin = self.syntax_tree.match_command(command)
-        response: str = None
-        if isinstance(plugin, self.CommandNotFound):
+        if self.mru_plugin and isinstance(plugin, self.CommandNotFound):
             self.thread_manager.dispatch(self.mru_plugin, command, is_secondary=True)
         else:
             self.thread_manager.dispatch(plugin, command)
