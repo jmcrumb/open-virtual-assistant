@@ -1,12 +1,14 @@
 from core.nova_core import NovaCore
 
+def response_handler(response: any):
+    print(f'Nova> {response}')
+
 def main():
-    core = NovaCore()
+    core = NovaCore(response_handler)
     
     while True:
         command: str = input('User> ')
-        response: str = core.invoke(command)
-        print(f'Nova> {response}')
+        core.invoke(command)
 
 if __name__ =='__main__':
     main()
