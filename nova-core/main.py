@@ -1,7 +1,9 @@
+import sys
+import unittest
 from core.nova_core import NovaCore
 
 def response_handler(response: any):
-    print(f'Nova> {response}')
+    print(f'\nNova> {response}\nUser> ', end='')
 
 def main():
     core = NovaCore(response_handler)

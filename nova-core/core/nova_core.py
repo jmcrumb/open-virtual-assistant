@@ -50,9 +50,9 @@ class SyntaxTree:
 
 class AsyncPluginThreadManager:
 
-    def __init__(self, response_handler):
+    def __init__(self, response_handler, CommandNotFound):
         self.active_threads: set = set()
-        self.response_queue: list = []
+        self.command_not_found = CommandNotFound()
 
         self.CAPACITY = 10
         self.buffer: list = []
@@ -64,11 +64,11 @@ class AsyncPluginThreadManager:
         self.full = Semaphore(0)
 
         self.keep_alive = True
-        self.response_thread = Thread(target=self.recieve, args=(response_handler, self.keep_alive))
+        self.response_thread = ResponseLoop(self, response_handler)
         self.response_thread.start()
 
     def dispatch(self, plugin: NovaPlugin, command: str, is_secondary: bool=False):
-        t: Thread = Thread(target=self.thread_payload, args=(plugin, command, is_secondary))
+        t: Thread = PluginThread(self, plugin, command, is_secondary)
         t.start()
         self.active_threads.add(t)
 
@@ -91,7 +91,7 @@ class AsyncPluginThreadManager:
 class PluginThread(Thread):
 
         def __init__(self, manager: AsyncPluginThreadManager, plugin: NovaPlugin, command: str, is_secondary: bool=False):
-            super(self)
+            super().__init__()
             self.manager = manager
             self.plugin = plugin
             self.command = command
@@ -101,9 +101,19 @@ class PluginThread(Thread):
             response = None
             if self.is_secondary:
                 response = self.plugin.execute_secondary_command(self.command)
+                if response:
+                    self.send_response(response)
+                else:
+                    self.send_response(self.manager.command_not_found.execute(self.command))
             else:
-                response = self.plugin.execute(self.command) 
+                response = self.plugin.execute(self.command)
+                if response:
+                    self.send_response(response)
+                else:
+                    self.is_secondary = True
+                    self.run()
 
+        def send_response(self, response):
             self.manager.empty.acquire()
             self.manager.mutex.acquire()
             
@@ -113,7 +123,24 @@ class PluginThread(Thread):
             self.manager.mutex.release()
             self.manager.full.release()
 
+class ResponseLoop(Thread):
+
+    def __init__(self, manager: AsyncPluginThreadManager, response_handler):
+        super().__init__()
+        self.manager = manager
+        self.response_handler = response_handler
+
+    def run(self):
+        manager = self.manager
+        while manager.keep_alive:
+            manager.full.acquire()
+            manager.mutex.acquire()
             
+            self.response_handler(nlp.text_to_speech(manager.buffer.pop(0)))
+            
+            manager.mutex.release()
+            manager.empty.release()
+
 
 class NovaCore:
 
@@ -123,27 +150,21 @@ class NovaCore:
         ]
         self.CommandNotFound = CommandNotFoundPlugin
         self.syntax_tree: SyntaxTree = SyntaxTree(self.CommandNotFound())
-        self.initialize_plugins()
-        self.current_plugin: NovaPlugin = None
-        self.thread_manager = AsyncPluginThreadManager(response_handler)
+        self._initialize_plugins()
+        self.mru_plugin: NovaPlugin = None
+        self.thread_manager = AsyncPluginThreadManager(response_handler, self.CommandNotFound)
 
-    def initialize_plugins(self):
+    def _initialize_plugins(self):
         for plugin in self.plugins:
             self.syntax_tree.add_plugin(plugin)
 
-    # TODO: implement multithreading with producer consumer model to handle responses
     def invoke(self, input_):
         command: str = nlp.speech_to_text(input_).lower()
 
         plugin: NovaPlugin = self.syntax_tree.match_command(command)
         response: str = None
         if isinstance(plugin, self.CommandNotFound):
-            response = self.current_plugin.execute_secondary_command(command)
-        if response is None:
-            self.current_plugin = plugin       
-            response = self.current_plugin.execute(command)
-
-        return nlp.text_to_speech(response)
-
-    def execute_aysnc(self, plugin: NovaPlugin, command: str, is_secondary: bool=False):
-        return plugin.execute_secondary_command(command) if is_secondary else plugin.execute(command)
+            self.thread_manager.dispatch(self.mru_plugin, command, is_secondary=True)
+        else:
+            self.thread_manager.dispatch(plugin, command)
+            self.mru_plugin = plugin
