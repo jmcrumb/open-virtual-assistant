@@ -39,3 +39,4 @@ web-build/
 # Nova Core
 nova-core/venv/
 __pycache__/
+*.pyc
