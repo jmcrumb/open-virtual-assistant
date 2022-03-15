@@ -1,11 +1,10 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -14,46 +13,11 @@ const (
 	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
-	password = "usdnova"
-	dbname   = "postgres"
+	password = "postgres"
+	dbname   = "postgres-test"
 )
 
-type Suite struct {
-	DB     *gorm.DB
-	Mock   sqlmock.Sqlmock
-	MockDB *sql.DB
-}
-
-func (s *Suite) Setup() {
-	s.Mock.ExpectExec(DBInit).WithArgs()
-	s.DB.Exec(DBInit)
-}
-func (s *Suite) Teardown() {
-	s.Mock.ExpectExec(DBTeardown).WithArgs()
-	s.DB.Exec(DBTeardown)
-}
-
-var TestSuite *Suite
 var DB *gorm.DB
-
-func SetupTestDB() {
-	var err error
-	TestSuite = new(Suite)
-	TestSuite.MockDB, TestSuite.Mock, err = sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	if err != nil {
-		log.Fatalf("failed to create database connection: %v", err)
-	}
-
-	TestSuite.DB, err = gorm.Open(postgres.New(postgres.Config{
-		Conn: TestSuite.MockDB,
-	}), &gorm.Config{})
-	if err != nil {
-		log.Fatalf("failed to open postgres database: %v", err)
-	}
-
-	// TestSuite.DB.Logger.LogMode(logger.Info)
-	DB = TestSuite.DB
-}
 
 func SetupDB() {
 	var err error
@@ -63,6 +27,29 @@ func SetupDB() {
 	if err != nil {
 		log.Fatal("failed to connect database")
 	}
+}
+func InitializeDB() error {
+	return DB.Exec(DBInit).Error
+}
+func ClearDB() error {
+	return DB.Exec(DBClear).Error
+}
+
+func GetTestAccount() string {
+	now := time.Now().Nanosecond()
+
+	acc := NewAccount{
+		Password:  "test",
+		FirstName: "user",
+		LastName:  "test",
+		Email:     fmt.Sprintf("user-%d@test.com", now),
+	}
+	var result Account
+
+	DB.Table("account").Create(&acc)
+	DB.Table("account").Where("email = ?", acc.Email).First(&result)
+
+	return result.ID
 }
 
 type Account struct {

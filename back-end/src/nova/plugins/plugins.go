@@ -1,6 +1,7 @@
 package plugins
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,10 @@ func postPlugin(c *gin.Context) {
 		return
 	}
 
-	database.DB.Table("plugin").Create(&body)
+	if err := database.DB.Table("plugin").Create(&body).Error; err != nil {
+		c.String(http.StatusBadRequest, fmt.Sprintf("invalid publisher id provided: %q", body.Publisher))
+		return
+	}
 	// this might lead to some duplicate plugins while only one is ever updated / used
 	database.DB.Table("plugin").Where("source_link = ?", body.SourceLink).First(&pluginResult)
 
@@ -49,9 +53,9 @@ func getPlugin(c *gin.Context) {
 }
 
 func Route(router *gin.RouterGroup) {
-	router.GET("/plugins", getPlugins)
-	router.POST("/plugins", postPlugin)
-	router.PUT("/plugins", putPlugin)
-	router.DELETE("/plugins/:id", deletePlugin)
-	router.GET("/plugins/:id", getPlugin)
+	router.GET("/", getPlugins)
+	router.POST("/", postPlugin)
+	router.PUT("/", putPlugin)
+	router.DELETE("/:id", deletePlugin)
+	router.GET("/:id", getPlugin)
 }

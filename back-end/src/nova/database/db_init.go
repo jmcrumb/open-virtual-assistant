@@ -1,13 +1,14 @@
 package database
 
 const (
-	DBTeardown = `
+	DBClear = `
+DELETE FROM plugin;
 DELETE FROM account;
 DELETE FROM profile;
-DELETE FROM plugin;
 DELETE FROM review;
 DELETE FROM report;
 `
+
 	DBInit = `
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 

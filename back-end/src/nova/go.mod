@@ -3,7 +3,6 @@ module github.com/jmcrumb/nova
 go 1.17
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/gin-gonic/gin v1.7.7
 	github.com/stretchr/testify v1.7.0
 	gorm.io/driver/postgres v1.2.3
