@@ -1,5 +1,4 @@
-import sys
-import unittest
+import signal
 from core.nova_core import NovaCore
 
 def response_handler(response: any):
@@ -7,6 +6,7 @@ def response_handler(response: any):
 
 def main():
     core = NovaCore(response_handler)
+    # signal.signal(signal.SIG)
     
     while True:
         command: str = input('User> ')
