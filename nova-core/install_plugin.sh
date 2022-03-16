@@ -24,7 +24,7 @@ installPlugin() {
 
     # TODO: insulate against injection attack
 
-    PLUGIN_REGISTRY="plugins=[\n\t"
+    PLUGIN_REGISTRY="registry=[\n\t"
 
     while IFS="," read -r path className
     do
