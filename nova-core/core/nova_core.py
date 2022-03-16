@@ -6,6 +6,7 @@ from plugins.hello_world_plugin import HelloWorldPlugin
 
 from core.abstract_plugin import NovaPlugin
 
+import core.plugin_registry as plugin_registry
 
 class SyntaxTree:
 
@@ -145,9 +146,11 @@ class ResponseLoop(Thread):
 class NovaCore:
 
     def __init__(self, response_handler):
-        self.plugins: list[NovaPlugin] = [
-            HelloWorldPlugin()
-        ]
+        self.plugins: list[NovaPlugin] = []
+
+        for Plugin in plugin_registry.registry:
+            self.plugins.append(Plugin())
+
         self.CommandNotFound = CommandNotFoundPlugin
         self.syntax_tree: SyntaxTree = SyntaxTree(self.CommandNotFound())
         self._initialize_plugins()
