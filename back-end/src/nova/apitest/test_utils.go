@@ -10,11 +10,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
-	"github.com/jmcrumb/nova/database"
 )
 
 type APITest struct {
-	Method string
+	URL    string
 	Body   interface{}
 	Status int
 	Err    string
@@ -23,13 +22,6 @@ type APITest struct {
 }
 type ComparatorFunc func(a, b interface{}) bool
 
-func AddDBItems(table string, rows ...interface{}) {
-	db := database.DB
-
-	for _, item := range rows {
-		db.Table(table).Create(&item)
-	}
-}
 func AssertResultsEqual(t *testing.T, expected []interface{}, actual []interface{}, areEqual ComparatorFunc) {
 	if len(expected) != len(actual) {
 		t.Errorf("len(rows) == %d, want %d", len(actual), len(expected))
@@ -57,8 +49,8 @@ type APITestArgs struct {
 	Router *gin.Engine
 	Tests  []APITest
 
-	Method string
-	URL    string
+	Method  string
+	BaseURL string
 
 	QueryRows  func() []interface{}
 	Comparator ComparatorFunc
@@ -75,7 +67,7 @@ func TryRequests(args APITestArgs) {
 			marshalled, _ := json.Marshal(&test.Body)
 			body = string(marshalled)
 		}
-		req, _ := http.NewRequest(args.Method, args.URL, strings.NewReader(body))
+		req, _ := http.NewRequest(args.Method, args.BaseURL+test.URL, strings.NewReader(body))
 		args.Router.ServeHTTP(w, req)
 
 		// check http result values
