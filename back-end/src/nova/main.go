@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmcrumb/nova/accounts"
+	"github.com/jmcrumb/nova/auth"
 	"github.com/jmcrumb/nova/database"
 	"github.com/jmcrumb/nova/nlp"
 	"github.com/jmcrumb/nova/plugins"
