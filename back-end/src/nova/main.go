@@ -12,6 +12,10 @@ func main() {
 	database.SetupDB()
 	router := gin.Default()
 
+	// route authorization API
+	authGroup := router.Group("/auth")
+	auth.Route(authGroup)
+
 	// route NLP api
 	nlpGroup := router.Group("/nlp")
 	nlp.Route(nlpGroup)
@@ -24,7 +28,7 @@ func main() {
 	pluginGroup := router.Group("/plugin")
 	plugins.Route(pluginGroup)
 
-	router.SetTrustedProxies([]string{"localhost"})
+	router.SetTrustedProxies([]string{"localhost", "127.0.0.1"})
 	router.RunTLS(":443", "server.crt", "server.key")
 	// log.Fatal(autotls.Run(router)) // use this instead of lines above when LetsEncrypt is configured
 }

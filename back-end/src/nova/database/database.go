@@ -89,4 +89,9 @@ type NewPlugin struct {
 	Publisher  string `json:"publisher"`
 	SourceLink string `json:"source_link"`
 	About      string `json:"about"`
+
+type UpdatePassword struct {
+	AccountID   string `json:"account_id"`
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
 }
