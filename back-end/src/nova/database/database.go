@@ -35,11 +35,11 @@ func ClearDB() error {
 	return DB.Exec(DBClear).Error
 }
 
-func GetTestAccount() string {
+func GetTestAccount() (id string, info NewAccount) {
 	now := time.Now().Nanosecond()
 
 	acc := NewAccount{
-		Password:  "test",
+		Password:  "test123",
 		FirstName: "user",
 		LastName:  "test",
 		Email:     fmt.Sprintf("user-%d@test.com", now),
@@ -49,7 +49,7 @@ func GetTestAccount() string {
 	DB.Table("account").Create(&acc)
 	DB.Table("account").Where("email = ?", acc.Email).First(&result)
 
-	return result.ID
+	return result.ID, acc
 }
 
 type Account struct {

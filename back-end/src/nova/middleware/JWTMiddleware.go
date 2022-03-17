@@ -20,7 +20,7 @@ func AuthorizeJWT() gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
 
-		tokenString := authHeader[len(BEARER_SCHEMA):]
+		tokenString := authHeader[len(BEARER_SCHEMA):] // ayo, runtime error: slice bounds out of range [6:0]
 		tokenString = strings.TrimSpace(tokenString)
 
 		token, err := auth.JWTAuthService().ValidateToken(tokenString)

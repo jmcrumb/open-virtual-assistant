@@ -12,6 +12,7 @@ import (
 	"github.com/go-playground/assert/v2"
 )
 
+// add ability to check on the result given back by a request (for GET)
 type APITest struct {
 	URL    string
 	Body   interface{}
@@ -21,6 +22,18 @@ type APITest struct {
 	Rows []interface{}
 }
 type ComparatorFunc func(a, b interface{}) bool
+
+type APITestArgs struct {
+	T      *testing.T
+	Router *gin.Engine
+	Tests  []APITest
+
+	Method  string
+	BaseURL string
+
+	QueryRows  func() []interface{}
+	Comparator ComparatorFunc
+}
 
 func AssertResultsEqual(t *testing.T, expected []interface{}, actual []interface{}, areEqual ComparatorFunc) {
 	if len(expected) != len(actual) {
@@ -44,18 +57,6 @@ func AssertResultsEqual(t *testing.T, expected []interface{}, actual []interface
 	}
 }
 
-type APITestArgs struct {
-	T      *testing.T
-	Router *gin.Engine
-	Tests  []APITest
-
-	Method  string
-	BaseURL string
-
-	QueryRows  func() []interface{}
-	Comparator ComparatorFunc
-}
-
 func TryRequests(args APITestArgs) {
 	for _, test := range args.Tests {
 		// perform request
@@ -72,7 +73,7 @@ func TryRequests(args APITestArgs) {
 
 		// check http result values
 		assert.Equal(args.T, test.Status, w.Code)
-		if w.Code != http.StatusCreated {
+		if w.Code == http.StatusBadRequest {
 			assert.Equal(args.T, test.Err, w.Body.String())
 		}
 
