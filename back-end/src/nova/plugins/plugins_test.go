@@ -47,7 +47,7 @@ func TestMain(m *testing.M) {
 func TestPostPlugin(t *testing.T) {
 	database.ClearDB()
 
-	account := database.GetTestAccount()
+	account, _ := database.GetTestAccount()
 	tests := []apitest.APITest{
 		{
 			Body: database.NewPlugin{
@@ -97,7 +97,7 @@ func TestPostPlugin(t *testing.T) {
 func TestPutPlugin(t *testing.T) {
 	database.ClearDB()
 
-	account := database.GetTestAccount()
+	account, _ := database.GetTestAccount()
 	newPlugin := database.NewPlugin{
 		Publisher:  account,
 		SourceLink: "https://source.com/plugin/download",
@@ -156,7 +156,7 @@ func TestPutPlugin(t *testing.T) {
 func TestDeletePlugin(t *testing.T) {
 	database.ClearDB()
 
-	account := database.GetTestAccount()
+	account, _ := database.GetTestAccount()
 	newPlugin := database.NewPlugin{
 		Publisher:  account,
 		SourceLink: "https://source.com/plugin/download",
