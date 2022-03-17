@@ -3,6 +3,7 @@ bin-debug/
 bin-release/
 [Oo]bj/
 [Bb]in/
+[Pp]kg/
 
 # Other files and folders
 .settings/
@@ -32,3 +33,11 @@ web-build/
 
 # macOS
 .DS_Store
+
+# VS Code
+.vscode/
+
+# Nova Core
+nova-core/venv/
+__pycache__/
+*.pyc
