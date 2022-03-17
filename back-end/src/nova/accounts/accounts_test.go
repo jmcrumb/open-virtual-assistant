@@ -1,61 +1,80 @@
 package accounts
 
 import (
+	"log"
 	"net/http"
-	"net/http/httptest"
-	"strings"
+	"os"
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
+	"github.com/jmcrumb/nova/apitest"
+	"github.com/jmcrumb/nova/database"
 )
 
-func setupRouter() *gin.Engine {
-	router := gin.Default()
+var router *gin.Engine
 
-	Route(router.Group("/account"))
-	return router
+func compareAccounts(a1, a2 interface{}) bool {
+	a, b := a1.(database.Account), a2.(database.Account)
+	return a.Password == b.Password && a.FirstName == b.FirstName &&
+		a.LastName == b.LastName && a.Email == b.Email
+}
+func queryAccountRows() []interface{} {
+	var accounts []database.Account
+	err := database.DB.Table("account").Find(&accounts).Error
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	var rows []interface{}
+	for _, account := range accounts {
+		rows = append(rows, account)
+	}
+
+	return rows
+}
+
+func TestMain(m *testing.M) {
+	database.SetupDB()
+	database.InitializeDB()
+
+	router = gin.Default()
+	Route(router.Group("/accounts"))
+	router.SetTrustedProxies([]string{"localhost"})
+
+	exitVal := m.Run()
+	os.Exit(exitVal)
 }
 
 func TestGetAccountByID(t *testing.T) {
-	router := setupRouter()
+	database.ClearDB()
 
-	tests := []struct {
-		body   string
-		status int
-		err    string
-	}{
+	account, info := database.GetTestAccount()
+	tests := []apitest.APITest{
 		{
-			`{"Text":"This is a test"}`,
-			http.StatusOK,
-			"",
-		},
-		{
-			`{"wrong":"This is an invalid test"}`,
-			http.StatusBadRequest,
-			"empty 'text' field in json request",
-		},
-		{
-			`This is also an invalid test`,
-			http.StatusBadRequest,
-			"unable to unmarhsall request body",
+			URL:    account,
+			Status: http.StatusOK,
+			Err:    "",
+			Rows: []interface{}{
+				database.Account{
+					ID:        account,
+					Password:  info.Password,
+					FirstName: info.FirstName,
+					LastName:  info.LastName,
+					Email:     info.Email,
+				},
+			},
 		},
 	}
 
-	for _, test := range tests {
-		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("GET", "/nlp/text2speech", strings.NewReader(test.body))
-		router.ServeHTTP(w, req)
+	apitest.TryRequests(apitest.APITestArgs{
+		T:      t,
+		Router: router,
+		Tests:  tests,
 
-		assert.Equal(t, test.status, w.Code)
-		if w.Code == http.StatusOK {
-			assert.Equal(t, test.body, w.Body.String())
-		} else {
-			assert.Equal(t, test.err, w.Body.String())
-		}
-	}
-}
+		Method:  "GET",
+		BaseURL: "/accounts/",
 
-func TestSTT(t *testing.T) {
-
+		QueryRows:  queryAccountRows,
+		Comparator: compareAccounts,
+	})
 }

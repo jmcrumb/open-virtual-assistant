@@ -6,17 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmcrumb/nova/auth"
 	"github.com/jmcrumb/nova/database"
-	"github.com/jmcrumb/nova/middleware"
 )
 
 func getAccountByID(c *gin.Context) {
 	id := c.Param("id")
 
-	if id != auth.GetMiddlewareAuthenticatedAccountID(c) {
-		c.String(http.StatusUnauthorized, "Permission Denied")
-		return
-	}
-  
+	// if id != auth.GetMiddlewareAuthenticatedAccountID(c) {
+	// 	c.String(http.StatusUnauthorized, "Permission Denied")
+	// 	return
+	// }
+
 	var account database.Account
 	database.DB.Table("account").Where("id = ?", id).First(&account)
 	if account.ID != "" {
@@ -108,7 +107,8 @@ func putProfile(c *gin.Context) {
 }
 
 func Route(router *gin.RouterGroup) {
-	router.GET("/:id", middleware.AuthorizeJWT(), getAccountByID)
+	// router.GET("/:id", middleware.AuthorizeJWT(), getAccountByID)
+	router.GET("/:id", getAccountByID)
 	router.POST("/", postAccount)
 	router.PUT("/", putAccount)
 	router.POST("/reset-password", putAccountPassword)
