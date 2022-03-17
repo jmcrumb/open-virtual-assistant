@@ -25,8 +25,7 @@ func main() {
 
 	// route plugin store api
 
-	router.Run("localhost:8080")
-	// router.SetTrustedProxies([]string{"localhost", "127.0.0.1"})
-	// router.RunTLS(":443", "server.crt", "server.key")
+	router.SetTrustedProxies([]string{"localhost", "127.0.0.1"})
+	router.RunTLS(":443", "server.crt", "server.key")
 	// log.Fatal(autotls.Run(router)) // use this instead of lines above when LetsEncrypt is configured
 }
