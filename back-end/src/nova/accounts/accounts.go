@@ -16,7 +16,7 @@ func getAccountByID(c *gin.Context) {
 		c.String(http.StatusUnauthorized, "Permission Denied")
 		return
 	}
-
+  
 	var account database.Account
 	database.DB.Table("account").Where("id = ?", id).First(&account)
 	if account.ID != "" {
