@@ -45,7 +45,7 @@ func postAccount(c *gin.Context) {
 	var accountResult database.Account
 
 	if err := c.BindJSON(&body); err != nil {
-		c.String(http.StatusBadRequest, "unable to unmarhsall request body")
+		c.String(http.StatusBadRequest, "unable to unmarshall request body")
 		return
 	}
 
@@ -66,11 +66,15 @@ func putAccount(c *gin.Context) {
 	var body database.Account
 
 	if err := c.BindJSON(&body); err != nil {
-		c.String(http.StatusBadRequest, "unable to unmarhsall request body")
+		c.String(http.StatusBadRequest, "unable to unmarshall request body")
 		return
 	}
 
-	database.DB.Table("account").Where("id = ?", body.ID).Select("FirstName", "Email", "LastName").Updates(&body)
+	err := database.DB.Table("account").Where("id = ?", body.ID).Select("FirstName", "Email", "LastName").Updates(&body).Error
+	if err != nil {
+		c.String(http.StatusBadRequest, "invalid email provided")
+		return
+	}
 	c.Status(http.StatusCreated)
 }
 
@@ -79,7 +83,7 @@ func putAccountPassword(c *gin.Context) {
 	var account database.Account
 
 	if err := c.BindJSON(&body); err != nil {
-		c.String(http.StatusBadRequest, "unable to unmarhsall request body")
+		c.String(http.StatusBadRequest, "unable to unmarshall request body")
 		return
 	}
 
@@ -102,7 +106,7 @@ func putProfile(c *gin.Context) {
 	var body database.Profile
 
 	if err := c.BindJSON(&body); err != nil {
-		c.String(http.StatusBadRequest, "unable to unmarhsall request body")
+		c.String(http.StatusBadRequest, "unable to unmarshall request body")
 		return
 	}
 
@@ -115,7 +119,7 @@ func Route(router *gin.RouterGroup) {
 	router.GET("/:id", getAccountByID)
 	router.POST("/", postAccount)
 	router.PUT("/", putAccount)
-	router.POST("/reset-password", putAccountPassword)
+	router.PUT("/reset-password", putAccountPassword)
 
 	router.GET("/profiles/:id", getProfileByID)
 	router.PUT("/profiles", putProfile)

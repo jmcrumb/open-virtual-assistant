@@ -215,3 +215,194 @@ func TestPostAccount(t *testing.T) {
 		Comparator: compareAccounts,
 	})
 }
+
+func TestPutAccount(t *testing.T) {
+	database.ClearDB()
+
+	id, info := database.GetTestAccount()
+	tests := []apitest.APITest{
+		{
+			Body: database.Account{
+				ID:        id,
+				FirstName: "new firstname",
+				LastName:  "new lastname",
+				Email:     "newemail@novatest.com",
+			},
+			Status: http.StatusCreated,
+			Result: "",
+			Rows: []interface{}{
+				database.Account{
+					Password:  info.Password,
+					FirstName: "new firstname",
+					LastName:  "new lastname",
+					Email:     "newemail@novatest.com",
+				},
+			},
+		},
+		{
+			Body:   "no unmarshall",
+			Status: http.StatusBadRequest,
+			Result: "unable to unmarshall request body",
+			Rows: []interface{}{
+				database.Account{
+					Password:  info.Password,
+					FirstName: "new firstname",
+					LastName:  "new lastname",
+					Email:     "newemail@novatest.com",
+				},
+			},
+		},
+	}
+
+	apitest.TryRequests(apitest.APITestArgs{
+		T:      t,
+		Router: router,
+		Tests:  tests,
+
+		Method:  "PUT",
+		BaseURL: "/accounts/",
+
+		QueryRows:  queryAccountRows,
+		Comparator: compareAccounts,
+	})
+}
+
+func TestPutAccountPassword(t *testing.T) {
+	database.ClearDB()
+
+	id, info := database.GetTestAccount()
+	tests := []apitest.APITest{
+		{
+			Body: database.UpdatePassword{
+				AccountID:   id,
+				OldPassword: info.Password,
+				NewPassword: "new password",
+			},
+			Status: http.StatusCreated,
+			Result: "",
+			Rows: []interface{}{
+				database.Account{
+					Password:  "new password",
+					FirstName: info.FirstName,
+					LastName:  info.LastName,
+					Email:     info.Email,
+				},
+			},
+		},
+		{
+			Body:   "no unmarshall",
+			Status: http.StatusBadRequest,
+			Result: "unable to unmarshall request body",
+			Rows: []interface{}{
+				database.Account{
+					Password:  "new password",
+					FirstName: info.FirstName,
+					LastName:  info.LastName,
+					Email:     info.Email,
+				},
+			},
+		},
+		{
+			Body: database.UpdatePassword{
+				AccountID:   id,
+				OldPassword: "wrong old password",
+				NewPassword: "new password",
+			},
+			Status: http.StatusBadRequest,
+			Result: "incorrect information",
+			Rows: []interface{}{
+				database.Account{
+					Password:  "new password",
+					FirstName: info.FirstName,
+					LastName:  info.LastName,
+					Email:     info.Email,
+				},
+			},
+		},
+		{
+			Body: database.UpdatePassword{
+				AccountID:   "wrong ID",
+				OldPassword: info.Password,
+				NewPassword: "new password",
+			},
+			Status: http.StatusBadRequest,
+			Result: "incorrect information",
+			Rows: []interface{}{
+				database.Account{
+					Password:  "new password",
+					FirstName: info.FirstName,
+					LastName:  info.LastName,
+					Email:     info.Email,
+				},
+			},
+		},
+	}
+
+	apitest.TryRequests(apitest.APITestArgs{
+		T:      t,
+		Router: router,
+		Tests:  tests,
+
+		Method:  "PUT",
+		BaseURL: "/accounts/reset-password",
+
+		QueryRows:  queryAccountRows,
+		Comparator: compareAccounts,
+	})
+}
+
+func TestPutProfile(t *testing.T) {
+	database.ClearDB()
+
+	id, _ := database.GetTestAccount()
+	database.DB.Table("profile").Create(&database.Profile{
+		AccountID: id,
+		Bio:       "account bio",
+		Photo:     []byte{1, 2, 3, 4, 5},
+	})
+	var profile database.Profile
+	database.DB.Table("profile").Where("account_id = ?", id).First(&profile)
+
+	tests := []apitest.APITest{
+		{
+			Body: database.Profile{
+				AccountID: id,
+				Bio:       "new account bio",
+				Photo:     []byte{5, 4, 3, 2, 1, 0},
+			},
+			Status: http.StatusCreated,
+			Result: "",
+			Rows: []interface{}{
+				database.Profile{
+					AccountID: id,
+					Bio:       "new account bio",
+					Photo:     []byte{5, 4, 3, 2, 1, 0},
+				},
+			},
+		},
+		{
+			Body:   "no unmarshall",
+			Status: http.StatusBadRequest,
+			Result: "unable to unmarshall request body",
+			Rows: []interface{}{
+				database.Profile{
+					AccountID: id,
+					Bio:       "new account bio",
+					Photo:     []byte{5, 4, 3, 2, 1, 0},
+				},
+			},
+		},
+	}
+
+	apitest.TryRequests(apitest.APITestArgs{
+		T:      t,
+		Router: router,
+		Tests:  tests,
+
+		Method:  "PUT",
+		BaseURL: "/accounts/profiles",
+
+		QueryRows:  queryProfileRows,
+		Comparator: compareProfiles,
+	})
+}
