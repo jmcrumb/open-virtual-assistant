@@ -1,6 +1,7 @@
 package accounts
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,19 +23,21 @@ func getAccountByID(c *gin.Context) {
 		c.JSON(http.StatusOK, account)
 		return
 	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "account not found"})
+
+	c.String(http.StatusNotFound, fmt.Sprintf("no account found with id: %v", id))
 }
 
 func getProfileByID(c *gin.Context) {
 	id := c.Param("id")
 
 	var profile database.Profile
-	database.DB.Table("account").Where("id = ?", id).First(&profile)
+	database.DB.Table("profile").Where("account_id = ?", id).First(&profile)
 	if profile.AccountID != "" {
 		c.JSON(http.StatusOK, profile)
 		return
 	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "profile not found"})
+
+	c.String(http.StatusNotFound, fmt.Sprintf("no profile found with id: %v", id))
 }
 
 func postAccount(c *gin.Context) {
@@ -49,6 +52,7 @@ func postAccount(c *gin.Context) {
 	// Secure password
 	body.Password = auth.HashPassword(body.Password)
 
+	// do a regex match on the email to make sure it's valid
 	database.DB.Table("account").Create(&body)
 	database.DB.Table("account").Where("email = ?", body.Email).First(&accountResult)
 	database.DB.Table("profile").Create(&database.Profile{
@@ -113,6 +117,6 @@ func Route(router *gin.RouterGroup) {
 	router.PUT("/", putAccount)
 	router.POST("/reset-password", putAccountPassword)
 
-	router.GET("/profile/:id", getProfileByID)
-	router.PUT("/profile", putProfile)
+	router.GET("/profiles/:id", getProfileByID)
+	router.PUT("/profiles", putProfile)
 }
