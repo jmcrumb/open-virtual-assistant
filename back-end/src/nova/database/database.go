@@ -45,7 +45,7 @@ func GetTestAccount() (id string, info NewAccount) {
 		Password:  "test123",
 		FirstName: "user",
 		LastName:  "test",
-		Email:     fmt.Sprintf("user-%d@test.com", now),
+		Email:     fmt.Sprintf("user-%d@novatest.com", now),
 	}
 	var result Account
 

@@ -71,11 +71,11 @@ func TryRequests(args APITestArgs) {
 		req, _ := http.NewRequest(args.Method, args.BaseURL+test.URL, strings.NewReader(body))
 		args.Router.ServeHTTP(w, req)
 
-		// check http result values
-		assert.Equal(args.T, test.Status, w.Code)
-
 		// check result body against expected result
 		assert.MatchRegex(args.T, w.Body.String(), test.Result)
+
+		// check http result values
+		assert.Equal(args.T, test.Status, w.Code)
 
 		// check database
 		rows := args.QueryRows()
