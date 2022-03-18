@@ -52,10 +52,20 @@ func getPlugin(c *gin.Context) {
 	c.String(http.StatusBadGateway, "this endpoint is not yet implemented")
 }
 
+func searchPlugin(c *gin.Context) {
+	query := c.Param("query")
+
+	var plugins []database.Plugin
+	database.DB.Raw("SELECT * FROM plugin WHERE tsv_name @@ to_tsquery(?);", query).Find(&plugins)
+
+	c.JSON(http.StatusOK, plugins)
+}
+
 func Route(router *gin.RouterGroup) {
 	router.GET("/", getPlugins)
 	router.POST("/", postPlugin)
 	router.PUT("/", putPlugin)
 	router.DELETE("/:id", deletePlugin)
 	router.GET("/:id", getPlugin)
+	router.GET("/search/:query", searchPlugin)
 }
