@@ -1,6 +1,7 @@
 package accounts
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -48,20 +49,20 @@ func TestMain(m *testing.M) {
 func TestGetAccountByID(t *testing.T) {
 	database.ClearDB()
 
-	account, info := database.GetTestAccount()
+	id, _ := database.GetTestAccount()
+	var account database.Account
+	database.DB.Table("account").Where("id = ?", id).First(&account)
+
+	var accountBytes []byte
+	accountBytes, _ = json.Marshal(&account)
+
 	tests := []apitest.APITest{
 		{
-			URL:    account,
+			URL:    id,
 			Status: http.StatusOK,
-			Err:    "",
+			Result: string(accountBytes),
 			Rows: []interface{}{
-				database.Account{
-					ID:        account,
-					Password:  info.Password,
-					FirstName: info.FirstName,
-					LastName:  info.LastName,
-					Email:     info.Email,
-				},
+				account,
 			},
 		},
 	}
