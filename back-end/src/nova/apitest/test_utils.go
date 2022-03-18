@@ -75,7 +75,7 @@ func TryRequests(args APITestArgs) {
 		assert.Equal(args.T, test.Status, w.Code)
 
 		// check result body against expected result
-		assert.Equal(args.T, test.Result, w.Body.String())
+		assert.MatchRegex(args.T, w.Body.String(), test.Result)
 
 		// check database
 		rows := args.QueryRows()
