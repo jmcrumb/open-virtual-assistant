@@ -19,9 +19,9 @@ func comparePlugins(p1, p2 interface{}) bool {
 }
 func queryPluginRows() []interface{} {
 	var plugins []database.Plugin
-	err := database.DB.Table("plugin").Find(&plugins).Error
-	if err != nil {
-		log.Fatalf("%v", err)
+	Result := database.DB.Table("plugin").Find(&plugins).Error
+	if Result != nil {
+		log.Fatalf("%v", Result)
 	}
 
 	var rows []interface{}
@@ -56,7 +56,7 @@ func TestPostPlugin(t *testing.T) {
 				About:      "a short description about the plugin",
 			},
 			Status: http.StatusCreated,
-			Err:    "",
+			Result: "",
 			Rows: []interface{}{
 				database.Plugin{
 					Publisher:     account,
@@ -69,7 +69,7 @@ func TestPostPlugin(t *testing.T) {
 		{
 			Body:   `{"invalid":"test"}`,
 			Status: http.StatusBadRequest,
-			Err:    "invalid publisher id provided: \"\"",
+			Result: "invalid publisher id provided: \"\"",
 			Rows: []interface{}{
 				database.Plugin{
 					Publisher:     account,
@@ -115,7 +115,7 @@ func TestPutPlugin(t *testing.T) {
 				About:      "the description has changed",
 			},
 			Status: http.StatusCreated,
-			Err:    "",
+			Result: "",
 			Rows: []interface{}{
 				database.Plugin{
 					Publisher:     account,
@@ -128,7 +128,7 @@ func TestPutPlugin(t *testing.T) {
 		{
 			Body:   "non-unmarshallable",
 			Status: http.StatusBadRequest,
-			Err:    "unable to unmarshall request body",
+			Result: "unable to unmarshall request body",
 			Rows: []interface{}{
 				database.Plugin{
 					Publisher:     account,
@@ -171,7 +171,7 @@ func TestDeletePlugin(t *testing.T) {
 			URL:    plugin.ID,
 			Body:   "",
 			Status: http.StatusNoContent,
-			Err:    "",
+			Result: "",
 			Rows:   []interface{}{},
 		},
 	}
