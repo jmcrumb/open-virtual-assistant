@@ -17,7 +17,7 @@ type APITest struct {
 	URL    string
 	Body   interface{}
 	Status int
-	Err    string
+	Result string
 
 	Rows []interface{}
 }
@@ -73,9 +73,9 @@ func TryRequests(args APITestArgs) {
 
 		// check http result values
 		assert.Equal(args.T, test.Status, w.Code)
-		if w.Code == http.StatusBadRequest {
-			assert.Equal(args.T, test.Err, w.Body.String())
-		}
+
+		// check result body against expected result
+		assert.Equal(args.T, test.Result, w.Body.String())
 
 		// check database
 		rows := args.QueryRows()
