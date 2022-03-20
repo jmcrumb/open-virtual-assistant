@@ -2,7 +2,7 @@ from io import StringIO
 from time import sleep
 import unittest
 from unittest.mock import patch
-from main import response_handler
+from main import text_only_response_handler
 from core.nova_core import NovaCore, SyntaxTree, AsyncPluginThreadManager
 from plugins.command_not_found_plugin import CommandNotFoundPlugin
 from plugins.hello_world_plugin import HelloWorldPlugin
@@ -12,7 +12,7 @@ from core.abstract_plugin import NovaPlugin
 class NovaCoreTests(unittest.TestCase):
 
     def setUp(self):
-        self.core = NovaCore(response_handler)
+        self.core = NovaCore(text_only_response_handler)
 
     def test_plugin_initialization(self):
         self.assertIn('hello', self.core.syntax_tree.root.keys())
@@ -52,7 +52,7 @@ class AsyncPluginThreadManagerTests(unittest.TestCase):
     
     def setUp(self):
         self.thread_manager: AsyncPluginThreadManager = AsyncPluginThreadManager(
-            response_handler,
+            text_only_response_handler,
             CommandNotFoundPlugin
         )
 

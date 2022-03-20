@@ -1,3 +1,4 @@
+from queue import Queue
 from threading import Semaphore, Thread
 
 from nlp import nlp
@@ -137,7 +138,7 @@ class ResponseLoop(Thread):
             manager.full.acquire()
             manager.mutex.acquire()
             
-            self.response_handler(nlp.text_to_speech(manager.buffer.pop(0)))
+            self.response_handler(nlp.SpeechRecognition().text_to_speech(manager.buffer.pop(0)))
             
             manager.mutex.release()
             manager.empty.release()
@@ -162,9 +163,9 @@ class NovaCore:
             self.syntax_tree.add_plugin(plugin)
 
     def invoke(self, input_):
-        command: str = nlp.speech_to_text(input_).lower()
+        command: str = input_.lower()
 
-        plugin: NovaPlugin = self.syntax_tree.match_command(command)
+        plugin: NovaPlugin = self.syntax_tree.match_command(command.lower())
         if self.mru_plugin and isinstance(plugin, self.CommandNotFound):
             self.thread_manager.dispatch(self.mru_plugin, command, is_secondary=True)
         else:
