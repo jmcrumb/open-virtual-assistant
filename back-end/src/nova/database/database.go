@@ -2,6 +2,8 @@ package database
 
 import (
 	"fmt"
+	"log"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -11,19 +13,43 @@ const (
 	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
-	password = "usdnova"
-	dbname   = "postgres"
+	password = "postgres"
+	dbname   = "postgres-test"
 )
 
 var DB *gorm.DB
 
-func SetupDB() error {
+func SetupDB() {
 	var err error
-
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
-	return err
+	if err != nil {
+		log.Fatal("failed to connect database")
+	}
+}
+func InitializeDB() error {
+	return DB.Exec(DBInit).Error
+}
+func ClearDB() error {
+	return DB.Exec(DBClear).Error
+}
+
+func GetTestAccount() (id string, info NewAccount) {
+	now := time.Now().Nanosecond()
+
+	acc := NewAccount{
+		Password:  "test123",
+		FirstName: "user",
+		LastName:  "test",
+		Email:     fmt.Sprintf("user-%d@novatest.com", now),
+	}
+	var result Account
+
+	DB.Table("account").Create(&acc)
+	DB.Table("account").Where("email = ?", acc.Email).First(&result)
+
+	return result.ID, acc
 }
 
 type Account struct {
@@ -78,4 +104,24 @@ type NewReport struct {
 	Account string `json:"account"`
 	Plugin string `json:"plugin"`
 	Content string `json:"content"`
+}
+type Plugin struct {
+	ID            string `json:"id"`
+	Publisher     string `json:"publisher"`
+	SourceLink    string `json:"source_link"`
+	About         string `json:"about"`
+	DownloadCount int    `json:"download_count"`
+	PublishedOn   string `json:"published_on"`
+}
+
+type NewPlugin struct {
+	Publisher  string `json:"publisher"`
+	SourceLink string `json:"source_link"`
+	About      string `json:"about"`
+}
+
+type UpdatePassword struct {
+	AccountID   string `json:"account_id"`
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
 }

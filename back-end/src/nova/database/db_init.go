@@ -1,14 +1,15 @@
--- Open a psql terminal CLI and enter the following command to initialize the database
---  \i <project root path>open-virtual-assistant/back-end/src/nova/database/database_INIT.sql
+package database
 
--- To DELETE all existing database content uncomment following lines:
+const (
+	DBClear = `
+DELETE FROM plugin;
+DELETE FROM account;
+DELETE FROM profile;
+DELETE FROM review;
+DELETE FROM report;
+`
 
-DROP SCHEMA public CASCADE;
-CREATE SCHEMA public;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO public;
-
-
+	DBInit = `
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Creating the tables
@@ -38,7 +39,7 @@ CREATE TABLE profile (
 CREATE TABLE plugin (
     id UUID DEFAULT uuid_generate_v4 (),
     publisher UUID NOT NULL,
-    source_link varchar(150) NOT NULL UNIQUE,
+    source_link varchar(150) NOT NULL,
     about text DEFAULT '',
     download_count integer DEFAULT 0,
     published_on date DEFAULT CURRENT_DATE,
@@ -81,5 +82,5 @@ CREATE TABLE report (
         FOREIGN KEY(plugin)
         REFERENCES plugin(id)
 );
-
-\dt;
+`
+)

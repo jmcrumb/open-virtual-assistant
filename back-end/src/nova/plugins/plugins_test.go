@@ -1,89 +1,190 @@
 package plugins
 
 import (
-	"database/sql"
 	"log"
-	"regexp"
+	"net/http"
+	"os"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/gin-gonic/gin"
+	"github.com/jmcrumb/nova/apitest"
 	"github.com/jmcrumb/nova/database"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
-type Suite struct {
-	db     *gorm.DB
-	mock   sqlmock.Sqlmock
-	mockDB *sql.DB
+var router *gin.Engine
+
+func comparePlugins(p1, p2 interface{}) bool {
+	a, b := p1.(database.Plugin), p2.(database.Plugin)
+	return a.Publisher == b.Publisher && a.SourceLink == b.SourceLink && a.About == b.About && a.DownloadCount == b.DownloadCount
+}
+func queryPluginRows() []interface{} {
+	var plugins []database.Plugin
+	Result := database.DB.Table("plugin").Find(&plugins).Error
+	if Result != nil {
+		log.Fatalf("%v", Result)
+	}
+
+	var rows []interface{}
+	for _, plugin := range plugins {
+		rows = append(rows, plugin)
+	}
+
+	return rows
 }
 
-func NewSuite() *Suite {
-	var (
-		s   Suite
-		err error
-	)
+func TestMain(m *testing.M) {
+	database.SetupDB()
+	database.InitializeDB()
 
-	s.mockDB, s.mock, err = sqlmock.New()
-	if err != nil {
-		log.Fatalf("failed to create database connection: %v", err)
-	}
+	router = gin.Default()
+	Route(router.Group("/plugin"))
+	router.SetTrustedProxies([]string{"localhost"})
 
-	s.db, err = gorm.Open(postgres.New(postgres.Config{
-		Conn: s.mockDB,
-	}), &gorm.Config{})
-	if err != nil {
-		log.Fatalf("failed to open postgres database: %v", err)
-	}
-
-	s.db.Logger.LogMode(logger.Info)
-	return &s
+	exitVal := m.Run()
+	os.Exit(exitVal)
 }
 
 func TestPostPlugin(t *testing.T) {
-	s := NewSuite()
-	defer s.mockDB.Close()
-	tests := []database.Plugin{
+	database.ClearDB()
+
+	account, _ := database.GetTestAccount()
+	tests := []apitest.APITest{
 		{
-			ID:         "12345",
-			SourceLink: "https://plugin.com",
+			Body: database.NewPlugin{
+				Publisher:  account,
+				SourceLink: "https://source.com/plugin/download",
+				About:      "a short description about the plugin",
+			},
+			Status: http.StatusCreated,
+			Result: "",
+			Rows: []interface{}{
+				database.Plugin{
+					Publisher:     account,
+					SourceLink:    "https://source.com/plugin/download",
+					About:         "a short description about the plugin",
+					DownloadCount: 0,
+				},
+			},
 		},
 		{
-			ID:            "123",
-			Publisher:     "maxon",
-			SourceLink:    "github.com/maxon/plugin",
-			About:         "a great plugin with many featurers",
-			DownloadCount: 500,
-			PublishedOn:   "2/22/22 22:22:22",
+			Body:   `{"invalid":"test"}`,
+			Status: http.StatusBadRequest,
+			Result: "invalid publisher id provided: \"\"",
+			Rows: []interface{}{
+				database.Plugin{
+					Publisher:     account,
+					SourceLink:    "https://source.com/plugin/download",
+					About:         "a short description about the plugin",
+					DownloadCount: 0,
+				},
+			},
 		},
 	}
 
-	query := regexp.QuoteMeta(
-		`INSERT INTO \"plugin\" (\"id\", \"publisher\", \"source_link\", \"about\", \"download_count\", \"published_on\"
-		VALUES (?,?,?,?,?,?) RETURNING \"plugin\"`)
-	for _, test := range tests {
-		s.mock.ExpectQuery(query).
-			WithArgs(test.ID, test.Publisher, test.SourceLink, test.About, test.DownloadCount, test.PublishedOn).
-			WillReturnRows(
-				sqlmock.NewRows([]string{"id", "publisher", "source_link", "about", "download_count", "published_on"}).
-					AddRow(test.ID, test.Publisher, test.SourceLink, test.About, test.DownloadCount, test.PublishedOn),
-			)
+	apitest.TryRequests(apitest.APITestArgs{
+		T:      t,
+		Router: router,
+		Tests:  tests,
 
-		s.db.Exec(query, test.ID, test.Publisher, test.SourceLink)
-		err := s.db.Table("plugin").Create(&test).Error
-		if err != nil {
-			t.Errorf("Query failed: %v", err)
-		} else if err := s.mock.ExpectationsWereMet(); err != nil {
-			t.Errorf("there were unfulfilled expectations: %v", err)
-		}
-	}
+		Method:  "POST",
+		BaseURL: "/plugin/",
+
+		QueryRows:  queryPluginRows,
+		Comparator: comparePlugins,
+	})
 }
 
 func TestPutPlugin(t *testing.T) {
+	database.ClearDB()
 
+	account, _ := database.GetTestAccount()
+	newPlugin := database.NewPlugin{
+		Publisher:  account,
+		SourceLink: "https://source.com/plugin/download",
+		About:      "a short description about the plugin",
+	}
+	database.DB.Table("plugin").Create(&newPlugin)
+	var plugin database.Plugin
+	database.DB.Table("plugin").Where("source_link = ?", newPlugin.SourceLink).Find(&plugin)
+
+	tests := []apitest.APITest{
+		{
+			Body: database.Plugin{
+				ID:         plugin.ID,
+				SourceLink: "https://source.com/plugin/new-download",
+				About:      "the description has changed",
+			},
+			Status: http.StatusCreated,
+			Result: "",
+			Rows: []interface{}{
+				database.Plugin{
+					Publisher:     account,
+					SourceLink:    "https://source.com/plugin/new-download",
+					About:         "the description has changed",
+					DownloadCount: 0,
+				},
+			},
+		},
+		{
+			Body:   "non-unmarshallable",
+			Status: http.StatusBadRequest,
+			Result: "unable to unmarshall request body",
+			Rows: []interface{}{
+				database.Plugin{
+					Publisher:     account,
+					SourceLink:    "https://source.com/plugin/new-download",
+					About:         "the description has changed",
+					DownloadCount: 0,
+				},
+			},
+		},
+	}
+
+	apitest.TryRequests(apitest.APITestArgs{
+		T:      t,
+		Router: router,
+		Tests:  tests,
+
+		Method:  "PUT",
+		BaseURL: "/plugin/",
+
+		QueryRows:  queryPluginRows,
+		Comparator: comparePlugins,
+	})
 }
 
 func TestDeletePlugin(t *testing.T) {
+	database.ClearDB()
 
+	account, _ := database.GetTestAccount()
+	newPlugin := database.NewPlugin{
+		Publisher:  account,
+		SourceLink: "https://source.com/plugin/download",
+		About:      "a short description about the plugin",
+	}
+	database.DB.Table("plugin").Create(&newPlugin)
+	var plugin database.Plugin
+	database.DB.Table("plugin").Where("source_link = ?", newPlugin.SourceLink).Find(&plugin)
+
+	tests := []apitest.APITest{
+		{
+			URL:    plugin.ID,
+			Body:   "",
+			Status: http.StatusNoContent,
+			Result: "",
+			Rows:   []interface{}{},
+		},
+	}
+
+	apitest.TryRequests(apitest.APITestArgs{
+		T:      t,
+		Router: router,
+		Tests:  tests,
+
+		Method:  "DELETE",
+		BaseURL: "/plugin/",
+
+		QueryRows:  queryPluginRows,
+		Comparator: comparePlugins,
+	})
 }
