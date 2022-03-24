@@ -7,6 +7,8 @@ from playsound import playsound
 
 UNKNOWN_VALUE_ERROR = sr.UnknownValueError
 
+UNKNOWN_VALUE_ERROR = sr.UnknownValueError
+
 class SpeechRecognition:
     '''Singleton implmentation of Speech Recognition utility functions'''
 
@@ -31,6 +33,17 @@ class SpeechRecognition:
     def speech_to_text(self, input_: str) -> str:
         '''Speech to text which accepts str'''
         return input_
+  
+    
+    def speech_to_text(self) -> str:
+         with sr.Microphone() as source:
+            self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
+            print('Say something')
+            audio_data = self.recognizer.listen(source)
+            print('processing')
+            text: str = self.recognizer.recognize_google(audio_data)
+            print(text)
+            return text
     
     def speech_to_text(self, timeout=None) -> str:
         text: str = ''
