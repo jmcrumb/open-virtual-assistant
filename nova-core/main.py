@@ -1,28 +1,32 @@
 import sys
 import unittest
+from urllib import response
 from core.nova_core import NovaCore
-from nlp.nlp import SpeechRecognition
+from nlp.nlp import SpeechRecognition, UNKNOWN_VALUE_ERROR
 
 def main():
+
     # Sets text only CLI interface
     TEXT_DEBUG = False
 
     if TEXT_DEBUG:
-        core = NovaCore(text_only_response_handler)
+        input_handler = text_only_input_handler
+        response_handler = text_only_response_handler
     else:
-        core = NovaCore(audio_response_handler)
-
-    # Set voice [OPTIONAL]
-    sr: SpeechRecognition = SpeechRecognition()
-    sr.set_voice(17)
+        # Set voice [OPTIONAL]
+        sr: SpeechRecognition = SpeechRecognition()
+        sr.set_voice(17)
+        input_handler = microphone_input_handler
+        response_handler = audio_response_handler
+    core = NovaCore(response_handler)
 
     # Input loop
     while True:
-        if TEXT_DEBUG:
-            command: str = text_only_input_handler()
-        else:
-            command: str = microphone_input_handler()
-        core.invoke(command)
+        try:
+            command: str = input_handler()
+            core.invoke(command)
+        except UNKNOWN_VALUE_ERROR:
+            print('[Speech to text] Unknown Value')
 
 def text_only_response_handler(response: str):
     print(f'\nNova> {response}\nUser> ', end='')

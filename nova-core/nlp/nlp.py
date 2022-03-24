@@ -3,6 +3,8 @@ from threading import Semaphore
 import speech_recognition as sr
 import pyttsx3
 
+UNKNOWN_VALUE_ERROR = sr.UnknownValueError
+
 class SpeechRecognition:
     '''Singleton implmentation of Speech Recognition utility functions'''
 
@@ -31,7 +33,7 @@ class SpeechRecognition:
     
     def speech_to_text(self) -> str:
          with sr.Microphone() as source:
-            self.recognizer.adjust_for_ambient_noise(source, duration=0.2)
+            self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
             print('Say something')
             audio_data = self.recognizer.listen(source)
             print('processing')
@@ -41,11 +43,6 @@ class SpeechRecognition:
     
 
     def text_to_speech(self, input_: str, language='en') -> any:
-        self._tts_mutex.acquire()
-        # if self.tts_engine._inLoop:
-        #     self.tts_engine.endLoop()
         self.tts_engine.say(input_)
         self.tts_engine.runAndWait()
-        self.tts_engine.endLoop()   # add this line
-        self.tts_engine.stop()
-        self._tts_mutex.release()
+        print('test')

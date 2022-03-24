@@ -18,7 +18,8 @@ class NovaPlugin(ABC):
         pass
 
     def request_history(self) -> list:
-        return [];
+        return []
     
     def __string__(self) -> str: 
         return __class__.__name__
+

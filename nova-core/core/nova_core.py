@@ -55,14 +55,7 @@ class AsyncPluginThreadManager:
         self.active_threads: set = set()
         self.command_not_found = CommandNotFound()
 
-        self.CAPACITY = 10
-        self.buffer: list = []
-        self.in_index = 0
-        self.out_index = 0
-        
-        self.mutex = Semaphore()
-        self.empty = Semaphore(self.CAPACITY)
-        self.full = Semaphore(0)
+        self.buffer: Queue = Queue()
 
         self.keep_alive = True
         self.response_thread = ResponseLoop(self, response_handler)
@@ -73,16 +66,6 @@ class AsyncPluginThreadManager:
         t.start()
         self.active_threads.add(t)
 
-    def recieve(self, response_handler, keep_alive):
-        while keep_alive:
-            self.full.acquire()
-            self.mutex.acquire()
-            
-            response_handler(self.buffer.pop(0))
-            
-            self.mutex.release()
-            self.empty.release()
-            
     def __del__(self):
         # TODO: kill recieve thread
         self.keep_alive = False
@@ -115,14 +98,8 @@ class PluginThread(Thread):
                     self.run()
 
         def send_response(self, response):
-            self.manager.empty.acquire()
-            self.manager.mutex.acquire()
-            
-            self.manager.buffer.append(response)
+            self.manager.buffer.put(response)
             self.manager.active_threads.discard(self)
-            
-            self.manager.mutex.release()
-            self.manager.full.release()
 
 class ResponseLoop(Thread):
 
@@ -134,14 +111,8 @@ class ResponseLoop(Thread):
     def run(self):
         manager = self.manager
         while manager.keep_alive:
-            manager.full.acquire()
-            manager.mutex.acquire()
-            
-            self.response_handler(nlp.SpeechRecognition().text_to_speech(manager.buffer.pop(0)))
-            
-            manager.mutex.release()
-            manager.empty.release()
-
+            self.response_handler(manager.buffer.get())
+            manager.buffer.task_done()
 
 class NovaCore:
 
