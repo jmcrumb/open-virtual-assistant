@@ -17,7 +17,7 @@ type APITest struct {
 	URL    string
 	Body   interface{}
 	Status int
-	Result string
+	Result interface{}
 
 	Rows []interface{}
 }
@@ -72,7 +72,15 @@ func TryRequests(args APITestArgs) {
 		args.Router.ServeHTTP(w, req)
 
 		// check result body against expected result
-		assert.MatchRegex(args.T, w.Body.String(), test.Result)
+		var result string
+		if reflect.TypeOf(test.Result) == reflect.TypeOf("") {
+			result = test.Result.(string)
+			assert.MatchRegex(args.T, w.Body.String(), result)
+		} else {
+			marshalled, _ := json.Marshal(&test.Result)
+			result = string(marshalled)
+			assert.Equal(args.T, result, w.Body.String())
+		}
 
 		// check http result values
 		assert.Equal(args.T, test.Status, w.Code)
