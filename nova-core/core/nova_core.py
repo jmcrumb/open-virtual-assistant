@@ -57,6 +57,8 @@ class AsyncPluginThreadManager:
         self.command_not_found = CommandNotFound()
 
         self.buffer: Queue = Queue()
+        self.io_mutex: Semaphore = Semaphore()
+        # TODO: need to implement a mechanism which can't listen while it is speaking -- check for 'nova' else release?
 
         self.keep_alive = True
         self.response_thread = ResponseLoop(self, response_handler)
@@ -133,7 +135,13 @@ class NovaCore:
         for plugin in self.plugins:
             self.syntax_tree.add_plugin(plugin)
 
-    def invoke(self, input_):
+    def invoke(self, input_=None, unknown_input=False):
+        if unknown_input:
+            self.thread_manager.dispatch(self.thread_manager.command_not_found, '')
+            return
+        if not input_: 
+            return
+            
         command: str = input_.lower()
 
         plugin: NovaPlugin = self.syntax_tree.match_command(command.lower())
