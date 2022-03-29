@@ -8,9 +8,6 @@ import (
 	"github.com/jmcrumb/nova/database"
 )
 
-func getPlugins(c *gin.Context) {
-	c.String(http.StatusBadGateway, "this endpoint is not yet implemented")
-}
 func postPlugin(c *gin.Context) {
 	var body database.NewPlugin
 	var pluginResult database.Plugin
@@ -49,11 +46,20 @@ func deletePlugin(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 func getPlugin(c *gin.Context) {
-	c.String(http.StatusBadGateway, "this endpoint is not yet implemented")
+	id := c.Param("id")
+
+	var plugin database.Plugin
+	database.DB.Table("plugin").Where("id = ?", id).First(&plugin)
+
+	if plugin.ID == "" {
+		c.String(http.StatusBadRequest, "invalid plugin ID")
+		return
+	}
+
+	c.JSON(http.StatusOK, plugin)
 }
 
 func Route(router *gin.RouterGroup) {
-	router.GET("/", getPlugins)
 	router.POST("/", postPlugin)
 	router.PUT("/", putPlugin)
 	router.DELETE("/:id", deletePlugin)
