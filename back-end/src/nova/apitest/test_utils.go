@@ -75,12 +75,12 @@ func TryRequests(args APITestArgs) {
 		var result string
 		if reflect.TypeOf(test.Result) == reflect.TypeOf("") {
 			result = test.Result.(string)
+			assert.MatchRegex(args.T, w.Body.String(), result)
 		} else {
 			marshalled, _ := json.Marshal(&test.Result)
 			result = string(marshalled)
+			assert.Equal(args.T, result, w.Body.String())
 		}
-		assert.Equal(args.T, result, w.Body.String())
-
 		// check http result values
 		assert.Equal(args.T, test.Status, w.Code)
 
