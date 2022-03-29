@@ -71,19 +71,5 @@ def audio_response_handler(response: str):
     sr: SpeechRecognition = SpeechRecognition()
     sr.text_to_speech(response)
 
-def text_only_response_handler(response: str):
-    print(f'\nNova> {response}\nUser> ', end='')
-
-def text_only_input_handler() -> str:
-    return input('User> ')
-
-def microphone_input_handler() -> str:
-    sr: SpeechRecognition = SpeechRecognition()
-    return sr.speech_to_text()
-
-def audio_response_handler(response: str):
-    sr: SpeechRecognition = SpeechRecognition()
-    sr.text_to_speech(response)
-
 if __name__ =='__main__':
     main()
