@@ -207,11 +207,11 @@ func TestPutReview(t *testing.T) {
 			Status: http.StatusBadRequest,
 			Result: "unable to unmarshall request body",
 			Rows: []interface{}{
-				database.Plugin{
-					Publisher:     account,
-					SourceLink:    "https://source.com/plugin/new-download",
-					About:         "the description has changed",
-					DownloadCount: 0,
+				database.Review{
+					Account: account,
+					Plugin:  plugin.ID,
+					Rating:  2.2,
+					Content: "this plugin is actually terrible",
 				},
 			},
 		},
@@ -242,10 +242,19 @@ func TestDeleteReview(t *testing.T) {
 	database.DB.Table("plugin").Create(&newPlugin)
 	var plugin database.Plugin
 	database.DB.Table("plugin").Where("source_link = ?", newPlugin.SourceLink).Find(&plugin)
+	newReview := database.NewReview{
+		Account: account,
+		Plugin:  plugin.ID,
+		Rating:  4.5,
+		Content: "This plugin is great except that it's a little bit slow",
+	}
+	database.DB.Table("review").Create(&newReview)
+	var review database.Review
+	database.DB.Table("review").Where("plugin = ?", newReview.Plugin).Find(&review)
 
 	tests := []apitest.APITest{
 		{
-			URL:    plugin.ID,
+			URL:    review.ID,
 			Body:   "",
 			Status: http.StatusNoContent,
 			Result: "",
@@ -278,22 +287,31 @@ func TestGetReview(t *testing.T) {
 	database.DB.Table("plugin").Create(&newPlugin)
 	var plugin database.Plugin
 	database.DB.Table("plugin").Where("source_link = ?", newPlugin.SourceLink).Find(&plugin)
+	newReview := database.NewReview{
+		Account: account,
+		Plugin:  plugin.ID,
+		Rating:  4.5,
+		Content: "This plugin is great except that it's a little bit slow",
+	}
+	database.DB.Table("review").Create(&newReview)
+	var review database.Review
+	database.DB.Table("review").Where("plugin = ?", newReview.Plugin).Find(&review)
 
 	tests := []apitest.APITest{
 		{
-			URL:    plugin.ID,
+			URL:    review.ID,
 			Status: http.StatusNoContent,
-			Result: plugin,
+			Result: review,
 			Rows: []interface{}{
-				plugin,
+				review,
 			},
 		},
 		{
 			URL:    "invalid",
 			Status: http.StatusBadRequest,
-			Result: "invalid plugin ID",
+			Result: "invalid review ID",
 			Rows: []interface{}{
-				plugin,
+				review,
 			},
 		},
 	}
