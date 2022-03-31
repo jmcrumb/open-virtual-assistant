@@ -3,6 +3,8 @@ import time
 from core.nova_core import NovaCore
 from nlp.nlp import UNKNOWN_VALUE_ERROR, SpeechRecognition
 
+# Sets text only CLI interface
+TEXT_DEBUG: bool = False
 
 def get_env() -> dict:
     return {
@@ -22,11 +24,7 @@ def main():
 
     sr: SpeechRecognition = SpeechRecognition()
 
-    # Sets text only CLI interface
-    TEXT_DEBUG: bool = False
-
     env: dict = get_env()
-
 
     if TEXT_DEBUG:
         input_handler = text_only_input_handler
@@ -44,7 +42,7 @@ def main():
             command: str = input_handler(env)
             core.invoke(input_=command)
         except UNKNOWN_VALUE_ERROR:
-            core.invoke(input_=None, unknown_input=True)
+            core.invoke(input_=None, unknown_input=True)  
 
 def is_ongoing_conversation(last_invoked: float, attention_span: float) -> bool:
     return (time.time() - last_invoked) < attention_span
