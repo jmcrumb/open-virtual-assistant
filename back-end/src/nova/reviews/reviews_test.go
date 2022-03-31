@@ -1,6 +1,7 @@
 package reviews
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -113,7 +114,6 @@ func TestPostReview(t *testing.T) {
 
 	tests := []apitest.APITest{
 		{
-			URL: plugin.ID,
 			Body: database.NewReview{
 				Account: account,
 				Plugin:  plugin.ID,
@@ -134,7 +134,7 @@ func TestPostReview(t *testing.T) {
 		{
 			Body:   `{"invalid":"test"}`,
 			Status: http.StatusBadRequest,
-			Result: "invalid account id provided: \"\"",
+			Result: "invalid account or plugin id provided: {account: \"\", plugin: \"\"}",
 			Rows: []interface{}{
 				database.Review{
 					Account: account,
@@ -185,6 +185,7 @@ func TestPutReview(t *testing.T) {
 		{
 			Body: database.Review{
 				ID:      review.ID,
+				Account: "new account (this won't actually be updated)",
 				Rating:  2.2,
 				Content: "this plugin is actually terrible",
 			},
@@ -200,9 +201,6 @@ func TestPutReview(t *testing.T) {
 			},
 		},
 		{
-			/*
-				TODO
-			*/
 			Body:   "non-unmarshallable",
 			Status: http.StatusBadRequest,
 			Result: "unable to unmarshall request body",
@@ -254,7 +252,7 @@ func TestDeleteReview(t *testing.T) {
 
 	tests := []apitest.APITest{
 		{
-			URL:    review.ID,
+			URL:    fmt.Sprintf("%v/%v", plugin.ID, review.ID),
 			Body:   "",
 			Status: http.StatusNoContent,
 			Result: "",
