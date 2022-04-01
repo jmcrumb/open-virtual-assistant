@@ -41,3 +41,4 @@ web-build/
 nova-core/venv/
 __pycache__/
 *.pyc
+plugins.csv
