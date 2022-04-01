@@ -56,7 +56,7 @@ func TestPostPlugin(t *testing.T) {
 				About:      "a short description about the plugin",
 			},
 			Status: http.StatusCreated,
-			Result: "",
+			Result: `.+`,
 			Rows: []interface{}{
 				database.Plugin{
 					Publisher:     account,
