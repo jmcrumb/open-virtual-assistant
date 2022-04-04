@@ -1,4 +1,4 @@
-package reviews
+package reports
 
 import (
 	"fmt"
@@ -14,20 +14,20 @@ import (
 
 var router *gin.Engine
 
-func compareReviews(r1, r2 interface{}) bool {
-	a, b := r1.(database.Review), r2.(database.Review)
-	return a.SourceReview == b.SourceReview && a.Account == b.Account && a.Plugin == b.Plugin && a.Rating == b.Rating && a.Content == b.Content
+func compareReports(r1, r2 interface{}) bool {
+	a, b := r1.(database.Report), r2.(database.Report)
+	return a.Account == b.Account && a.Plugin == b.Plugin && a.Content == b.Content
 }
-func queryReviewRows() []interface{} {
-	var reviews []database.Review
-	Result := database.DB.Table("review").Find(&reviews).Error
+func queryReportRows() []interface{} {
+	var reports []database.Report
+	Result := database.DB.Table("report").Find(&reports).Error
 	if Result != nil {
 		log.Fatalf("%v", Result)
 	}
 
 	var rows []interface{}
-	for _, review := range reviews {
-		rows = append(rows, review)
+	for _, report := range reports {
+		rows = append(rows, report)
 	}
 
 	return rows
@@ -38,26 +38,26 @@ func TestMain(m *testing.M) {
 	database.InitializeDB()
 
 	router = gin.Default()
-	Route(router.Group("/reviews"))
+	Route(router.Group("/reports"))
 	router.SetTrustedProxies([]string{"localhost"})
 
 	exitVal := m.Run()
 	os.Exit(exitVal)
 }
 
-func TestGetReviews(t *testing.T) {
+func TestGetReports(t *testing.T) {
 	database.ClearDB()
 
 	account := database.GetTestAccount().ID
 	plugin := database.GetTestPlugin(account).ID
-	review := database.GetTestReview(account, plugin)
+	report := database.GetTestReport(account, plugin)
 	tests := []apitest.APITest{
 		{
 			URL:    plugin,
 			Status: http.StatusOK,
-			Result: []database.Review{review},
+			Result: []database.Report{report},
 			Rows: []interface{}{
-				review,
+				report,
 			},
 		},
 		{
@@ -65,7 +65,7 @@ func TestGetReviews(t *testing.T) {
 			Status: http.StatusBadRequest,
 			Result: "invalid plugin ID",
 			Rows: []interface{}{
-				review,
+				report,
 			},
 		},
 	}
@@ -76,34 +76,32 @@ func TestGetReviews(t *testing.T) {
 		Tests:  tests,
 
 		Method:  "GET",
-		BaseURL: "/reviews/",
+		BaseURL: "/reports/",
 
-		QueryRows:  queryReviewRows,
-		Comparator: compareReviews,
+		QueryRows:  queryReportRows,
+		Comparator: compareReports,
 	})
 }
 
-func TestPostReview(t *testing.T) {
+func TestPostReport(t *testing.T) {
 	database.ClearDB()
 
 	account := database.GetTestAccount().ID
 	plugin := database.GetTestPlugin(account).ID
 	tests := []apitest.APITest{
 		{
-			Body: database.NewReview{
+			Body: database.NewReport{
 				Account: account,
 				Plugin:  plugin,
-				Rating:  4.5,
-				Content: "This plugin is great except that it's a little bit slow",
+				Content: "This plugin broke all of my devices",
 			},
 			Status: http.StatusCreated,
 			Result: `.+`,
 			Rows: []interface{}{
-				database.Review{
+				database.Report{
 					Account: account,
 					Plugin:  plugin,
-					Rating:  4.5,
-					Content: "This plugin is great except that it's a little bit slow",
+					Content: "This plugin broke all of my devices",
 				},
 			},
 		},
@@ -112,11 +110,10 @@ func TestPostReview(t *testing.T) {
 			Status: http.StatusBadRequest,
 			Result: "invalid account or plugin id provided: {account: \"\", plugin: \"\"}",
 			Rows: []interface{}{
-				database.Review{
+				database.Report{
 					Account: account,
 					Plugin:  plugin,
-					Rating:  4.5,
-					Content: "This plugin is great except that it's a little bit slow",
+					Content: "This plugin broke all of my devices",
 				},
 			},
 		},
@@ -128,36 +125,34 @@ func TestPostReview(t *testing.T) {
 		Tests:  tests,
 
 		Method:  "POST",
-		BaseURL: "/reviews/",
+		BaseURL: "/reports/",
 
-		QueryRows:  queryReviewRows,
-		Comparator: compareReviews,
+		QueryRows:  queryReportRows,
+		Comparator: compareReports,
 	})
 }
 
-func TestPutReview(t *testing.T) {
+func TestPutReport(t *testing.T) {
 	database.ClearDB()
 
 	account := database.GetTestAccount().ID
 	plugin := database.GetTestPlugin(account).ID
-	review := database.GetTestReview(account, plugin)
+	report := database.GetTestReport(account, plugin)
 
 	tests := []apitest.APITest{
 		{
-			Body: database.Review{
-				ID:      review.ID,
+			Body: database.Report{
+				ID:      report.ID,
 				Account: "new account (this won't actually be updated)",
-				Rating:  2.2,
-				Content: "this plugin is actually terrible",
+				Content: "this plugin made my phone blow up",
 			},
 			Status: http.StatusCreated,
 			Result: "",
 			Rows: []interface{}{
-				database.Review{
+				database.Report{
 					Account: account,
 					Plugin:  plugin,
-					Rating:  2.2,
-					Content: "this plugin is actually terrible",
+					Content: "this plugin made my phone blow up",
 				},
 			},
 		},
@@ -166,11 +161,10 @@ func TestPutReview(t *testing.T) {
 			Status: http.StatusBadRequest,
 			Result: "unable to unmarshall request body",
 			Rows: []interface{}{
-				database.Review{
+				database.Report{
 					Account: account,
 					Plugin:  plugin,
-					Rating:  2.2,
-					Content: "this plugin is actually terrible",
+					Content: "this plugin made my phone blow up",
 				},
 			},
 		},
@@ -182,23 +176,23 @@ func TestPutReview(t *testing.T) {
 		Tests:  tests,
 
 		Method:  "PUT",
-		BaseURL: "/reviews/",
+		BaseURL: "/reports/",
 
-		QueryRows:  queryReviewRows,
-		Comparator: compareReviews,
+		QueryRows:  queryReportRows,
+		Comparator: compareReports,
 	})
 }
 
-func TestDeleteReview(t *testing.T) {
+func TestDeleteReport(t *testing.T) {
 	database.ClearDB()
 
 	account := database.GetTestAccount().ID
 	plugin := database.GetTestPlugin(account).ID
-	review := database.GetTestReview(account, plugin)
+	report := database.GetTestReport(account, plugin)
 
 	tests := []apitest.APITest{
 		{
-			URL:    fmt.Sprintf("%v/%v", plugin, review.ID),
+			URL:    fmt.Sprintf("%v/%v", plugin, report.ID),
 			Body:   "",
 			Status: http.StatusNoContent,
 			Result: "",
@@ -212,35 +206,35 @@ func TestDeleteReview(t *testing.T) {
 		Tests:  tests,
 
 		Method:  "DELETE",
-		BaseURL: "/reviews/",
+		BaseURL: "/reports/",
 
-		QueryRows:  queryReviewRows,
-		Comparator: compareReviews,
+		QueryRows:  queryReportRows,
+		Comparator: compareReports,
 	})
 }
 
-func TestGetReview(t *testing.T) {
+func TestGetReport(t *testing.T) {
 	database.ClearDB()
 
 	account := database.GetTestAccount().ID
 	plugin := database.GetTestPlugin(account).ID
-	review := database.GetTestReview(account, plugin)
+	report := database.GetTestReport(account, plugin)
 
 	tests := []apitest.APITest{
 		{
-			URL:    fmt.Sprintf("%v/%v", plugin, review.ID),
+			URL:    fmt.Sprintf("%v/%v", plugin, report.ID),
 			Status: http.StatusOK,
-			Result: review,
+			Result: report,
 			Rows: []interface{}{
-				review,
+				report,
 			},
 		},
 		{
 			URL:    fmt.Sprintf("%v/%v", plugin, "invalid"),
 			Status: http.StatusBadRequest,
-			Result: "invalid review ID",
+			Result: "invalid report ID",
 			Rows: []interface{}{
-				review,
+				report,
 			},
 		},
 	}
@@ -251,9 +245,9 @@ func TestGetReview(t *testing.T) {
 		Tests:  tests,
 
 		Method:  "GET",
-		BaseURL: "/reviews/",
+		BaseURL: "/reports/",
 
-		QueryRows:  queryReviewRows,
-		Comparator: compareReviews,
+		QueryRows:  queryReportRows,
+		Comparator: compareReports,
 	})
 }

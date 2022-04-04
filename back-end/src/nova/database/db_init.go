@@ -2,11 +2,11 @@ package database
 
 const (
 	DBClear = `
-DELETE FROM plugin;
-DELETE FROM account;
-DELETE FROM profile;
-DELETE FROM review;
 DELETE FROM report;
+DELETE FROM review;
+DELETE FROM plugin;
+DELETE FROM profile;
+DELETE FROM account;
 `
 
 	DBInit = `

@@ -38,7 +38,7 @@ func ClearDB() error {
 	return DB.Exec(DBClear).Error
 }
 
-func GetTestAccount() (id string, info NewAccount) {
+func GetTestAccount() (info Account) {
 	now := time.Now().Nanosecond()
 
 	acc := NewAccount{
@@ -52,7 +52,84 @@ func GetTestAccount() (id string, info NewAccount) {
 	DB.Table("account").Create(&acc)
 	DB.Table("account").Where("email = ?", acc.Email).First(&result)
 
-	return result.ID, acc
+	return result
+}
+func GetTestProfile(account string) (info Profile) {
+	if account == "" {
+		account = GetTestAccount().ID
+	}
+	profile := Profile{
+		AccountID: account,
+		Bio:       "test account",
+		Photo:     []byte{1, 2, 3, 4, 5},
+	}
+	var result Profile
+
+	DB.Table("profile").Create(&profile)
+	DB.Table("profile").Where("account_id = ?", account).First(&result)
+
+	return result
+}
+func GetTestPlugin(account string) (info Plugin) {
+	now := time.Now().Nanosecond()
+
+	if account == "" {
+		account = GetTestAccount().ID
+	}
+	plugin := NewPlugin{
+		Publisher:  account,
+		SourceLink: fmt.Sprintf("https://novatest.com/%d", now),
+		About:      "a test plugin",
+	}
+	var result Plugin
+
+	DB.Table("plugin").Create(&plugin)
+	DB.Table("plugin").Where("source_link = ?", plugin.SourceLink).First(&result)
+
+	return result
+}
+func GetTestReview(account string, plugin string) (info Review) {
+	now := time.Now().Nanosecond()
+
+	if account == "" {
+		account = GetTestAccount().ID
+	}
+	if plugin == "" {
+		plugin = GetTestPlugin(account).ID
+	}
+	review := NewReview{
+		Account: account,
+		Plugin:  plugin,
+		Rating:  4.5,
+		Content: fmt.Sprintf("test content (%d)", now),
+	}
+	var result Review
+
+	DB.Table("review").Select("Account", "Plugin", "Rating", "Content").Create(&review)
+	DB.Table("review").Where("content = ?", review.Content).First(&result)
+
+	return result
+}
+func GetTestReport(account string, plugin string) (info Report) {
+	now := time.Now().Nanosecond()
+
+	if account == "" {
+		account = GetTestAccount().ID
+	}
+	if plugin == "" {
+		plugin = GetTestPlugin(account).ID
+	}
+	report := NewReport{
+		Account: account,
+		Plugin:  plugin,
+		Content: fmt.Sprintf("test content (%d)", now),
+	}
+	var result Report
+
+	DB.Table("report").Create(&report)
+	DB.Table("report").Where("content = ?", report.Content).First(&result)
+
+	return result
 }
 
 type Account struct {

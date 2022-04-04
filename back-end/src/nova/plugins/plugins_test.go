@@ -47,7 +47,7 @@ func TestMain(m *testing.M) {
 func TestPostPlugin(t *testing.T) {
 	database.ClearDB()
 
-	account, _ := database.GetTestAccount()
+	account := database.GetTestAccount().ID
 	tests := []apitest.APITest{
 		{
 			Body: database.NewPlugin{
@@ -97,16 +97,8 @@ func TestPostPlugin(t *testing.T) {
 func TestPutPlugin(t *testing.T) {
 	database.ClearDB()
 
-	account, _ := database.GetTestAccount()
-	newPlugin := database.NewPlugin{
-		Publisher:  account,
-		SourceLink: "https://source.com/plugin/download",
-		About:      "a short description about the plugin",
-	}
-	database.DB.Table("plugin").Create(&newPlugin)
-	var plugin database.Plugin
-	database.DB.Table("plugin").Where("source_link = ?", newPlugin.SourceLink).Find(&plugin)
-
+	account := database.GetTestAccount().ID
+	plugin := database.GetTestPlugin(account)
 	tests := []apitest.APITest{
 		{
 			Body: database.Plugin{
@@ -156,16 +148,8 @@ func TestPutPlugin(t *testing.T) {
 func TestDeletePlugin(t *testing.T) {
 	database.ClearDB()
 
-	account, _ := database.GetTestAccount()
-	newPlugin := database.NewPlugin{
-		Publisher:  account,
-		SourceLink: "https://source.com/plugin/download",
-		About:      "a short description about the plugin",
-	}
-	database.DB.Table("plugin").Create(&newPlugin)
-	var plugin database.Plugin
-	database.DB.Table("plugin").Where("source_link = ?", newPlugin.SourceLink).Find(&plugin)
-
+	account := database.GetTestAccount().ID
+	plugin := database.GetTestPlugin(account)
 	tests := []apitest.APITest{
 		{
 			URL:    plugin.ID,
@@ -192,20 +176,12 @@ func TestDeletePlugin(t *testing.T) {
 func TestGetPlugin(t *testing.T) {
 	database.ClearDB()
 
-	account, _ := database.GetTestAccount()
-	newPlugin := database.NewPlugin{
-		Publisher:  account,
-		SourceLink: "https://source.com/plugin/download",
-		About:      "a short description about the plugin",
-	}
-	database.DB.Table("plugin").Create(&newPlugin)
-	var plugin database.Plugin
-	database.DB.Table("plugin").Where("source_link = ?", newPlugin.SourceLink).Find(&plugin)
-
+	account := database.GetTestAccount().ID
+	plugin := database.GetTestPlugin(account)
 	tests := []apitest.APITest{
 		{
 			URL:    plugin.ID,
-			Status: http.StatusNoContent,
+			Status: http.StatusOK,
 			Result: plugin,
 			Rows: []interface{}{
 				plugin,

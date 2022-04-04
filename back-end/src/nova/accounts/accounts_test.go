@@ -1,7 +1,6 @@
 package accounts
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -16,7 +15,7 @@ var router *gin.Engine
 
 func compareAccounts(a1, a2 interface{}) bool {
 	a, b := a1.(database.Account), a2.(database.Account)
-	return a.Password == b.Password && a.FirstName == b.FirstName &&
+	return a.FirstName == b.FirstName &&
 		a.LastName == b.LastName && a.Email == b.Email
 }
 func compareProfiles(p1, p2 interface{}) bool {
@@ -80,18 +79,12 @@ func TestMain(m *testing.M) {
 func TestGetAccountByID(t *testing.T) {
 	database.ClearDB()
 
-	id, _ := database.GetTestAccount()
-	var account database.Account
-	database.DB.Table("account").Where("id = ?", id).First(&account)
-
-	var accountBytes []byte
-	accountBytes, _ = json.Marshal(&account)
-
+	account := database.GetTestAccount()
 	tests := []apitest.APITest{
 		{
-			URL:    id,
+			URL:    account.ID,
 			Status: http.StatusOK,
-			Result: string(accountBytes),
+			Result: account,
 			Rows: []interface{}{
 				account,
 			},
@@ -122,23 +115,13 @@ func TestGetAccountByID(t *testing.T) {
 func TestGetProfileByID(t *testing.T) {
 	database.ClearDB()
 
-	id, _ := database.GetTestAccount()
-	database.DB.Table("profile").Create(&database.Profile{
-		AccountID: id,
-		Bio:       "account bio",
-		Photo:     []byte{1, 2, 3, 4, 5},
-	})
-	var profile database.Profile
-	database.DB.Table("profile").Where("account_id = ?", id).First(&profile)
-
-	var profileBytes []byte
-	profileBytes, _ = json.Marshal(&profile)
-
+	account := database.GetTestAccount().ID
+	profile := database.GetTestProfile(account)
 	tests := []apitest.APITest{
 		{
 			URL:    profile.AccountID,
 			Status: http.StatusOK,
-			Result: string(profileBytes),
+			Result: profile,
 			Rows: []interface{}{
 				profile,
 			},
@@ -219,11 +202,11 @@ func TestPostAccount(t *testing.T) {
 func TestPutAccount(t *testing.T) {
 	database.ClearDB()
 
-	id, info := database.GetTestAccount()
+	account := database.GetTestAccount()
 	tests := []apitest.APITest{
 		{
 			Body: database.Account{
-				ID:        id,
+				ID:        account.ID,
 				FirstName: "new firstname",
 				LastName:  "new lastname",
 				Email:     "newemail@novatest.com",
@@ -232,7 +215,7 @@ func TestPutAccount(t *testing.T) {
 			Result: "",
 			Rows: []interface{}{
 				database.Account{
-					Password:  info.Password,
+					Password:  account.Password,
 					FirstName: "new firstname",
 					LastName:  "new lastname",
 					Email:     "newemail@novatest.com",
@@ -245,7 +228,7 @@ func TestPutAccount(t *testing.T) {
 			Result: "unable to unmarshall request body",
 			Rows: []interface{}{
 				database.Account{
-					Password:  info.Password,
+					Password:  account.Password,
 					FirstName: "new firstname",
 					LastName:  "new lastname",
 					Email:     "newemail@novatest.com",
@@ -270,12 +253,12 @@ func TestPutAccount(t *testing.T) {
 func TestPutAccountPassword(t *testing.T) {
 	database.ClearDB()
 
-	id, info := database.GetTestAccount()
+	account := database.GetTestAccount()
 	tests := []apitest.APITest{
 		{
 			Body: database.UpdatePassword{
-				AccountID:   id,
-				OldPassword: info.Password,
+				AccountID:   account.ID,
+				OldPassword: account.Password,
 				NewPassword: "new password",
 			},
 			Status: http.StatusCreated,
@@ -283,9 +266,9 @@ func TestPutAccountPassword(t *testing.T) {
 			Rows: []interface{}{
 				database.Account{
 					Password:  "new password",
-					FirstName: info.FirstName,
-					LastName:  info.LastName,
-					Email:     info.Email,
+					FirstName: account.FirstName,
+					LastName:  account.LastName,
+					Email:     account.Email,
 				},
 			},
 		},
@@ -296,15 +279,15 @@ func TestPutAccountPassword(t *testing.T) {
 			Rows: []interface{}{
 				database.Account{
 					Password:  "new password",
-					FirstName: info.FirstName,
-					LastName:  info.LastName,
-					Email:     info.Email,
+					FirstName: account.FirstName,
+					LastName:  account.LastName,
+					Email:     account.Email,
 				},
 			},
 		},
 		{
 			Body: database.UpdatePassword{
-				AccountID:   id,
+				AccountID:   account.ID,
 				OldPassword: "wrong old password",
 				NewPassword: "new password",
 			},
@@ -313,16 +296,16 @@ func TestPutAccountPassword(t *testing.T) {
 			Rows: []interface{}{
 				database.Account{
 					Password:  "new password",
-					FirstName: info.FirstName,
-					LastName:  info.LastName,
-					Email:     info.Email,
+					FirstName: account.FirstName,
+					LastName:  account.LastName,
+					Email:     account.Email,
 				},
 			},
 		},
 		{
 			Body: database.UpdatePassword{
 				AccountID:   "wrong ID",
-				OldPassword: info.Password,
+				OldPassword: account.Password,
 				NewPassword: "new password",
 			},
 			Status: http.StatusBadRequest,
@@ -330,9 +313,9 @@ func TestPutAccountPassword(t *testing.T) {
 			Rows: []interface{}{
 				database.Account{
 					Password:  "new password",
-					FirstName: info.FirstName,
-					LastName:  info.LastName,
-					Email:     info.Email,
+					FirstName: account.FirstName,
+					LastName:  account.LastName,
+					Email:     account.Email,
 				},
 			},
 		},
@@ -354,19 +337,12 @@ func TestPutAccountPassword(t *testing.T) {
 func TestPutProfile(t *testing.T) {
 	database.ClearDB()
 
-	id, _ := database.GetTestAccount()
-	database.DB.Table("profile").Create(&database.Profile{
-		AccountID: id,
-		Bio:       "account bio",
-		Photo:     []byte{1, 2, 3, 4, 5},
-	})
-	var profile database.Profile
-	database.DB.Table("profile").Where("account_id = ?", id).First(&profile)
-
+	account := database.GetTestAccount().ID
+	database.GetTestProfile(account)
 	tests := []apitest.APITest{
 		{
 			Body: database.Profile{
-				AccountID: id,
+				AccountID: account,
 				Bio:       "new account bio",
 				Photo:     []byte{5, 4, 3, 2, 1, 0},
 			},
@@ -374,7 +350,7 @@ func TestPutProfile(t *testing.T) {
 			Result: "",
 			Rows: []interface{}{
 				database.Profile{
-					AccountID: id,
+					AccountID: account,
 					Bio:       "new account bio",
 					Photo:     []byte{5, 4, 3, 2, 1, 0},
 				},
@@ -386,7 +362,7 @@ func TestPutProfile(t *testing.T) {
 			Result: "unable to unmarshall request body",
 			Rows: []interface{}{
 				database.Profile{
-					AccountID: id,
+					AccountID: account,
 					Bio:       "new account bio",
 					Photo:     []byte{5, 4, 3, 2, 1, 0},
 				},

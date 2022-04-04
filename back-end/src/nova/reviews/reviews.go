@@ -16,7 +16,7 @@ func getReviews(c *gin.Context) {
 	var plugin database.Plugin
 	database.DB.Table("plugin").Where("id = ?", pluginID).First(&plugin)
 	if plugin.ID == "" {
-		c.String(http.StatusBadRequest, "unknown plugin ID")
+		c.String(http.StatusBadRequest, "invalid plugin ID")
 		return
 	}
 
@@ -32,8 +32,8 @@ func postReview(c *gin.Context) {
 		return
 	}
 
-	if err := database.DB.Table("review").Create(&body).Error; err != nil {
-		c.String(http.StatusBadRequest, fmt.Sprintf("invalid account or plugin id provided: {account: %q, plugin: %q", body.Account, body.Plugin))
+	if err := database.DB.Table("review").Select("Account", "Plugin", "Rating", "Content").Create(&body).Error; err != nil {
+		c.String(http.StatusBadRequest, fmt.Sprintf("invalid account or plugin id provided: {account: %q, plugin: %q}", body.Account, body.Plugin))
 		return
 	}
 
@@ -63,7 +63,7 @@ func deleteReview(c *gin.Context) {
 func getReview(c *gin.Context) {
 	id := c.Param("id")
 
-	var review database.Plugin
+	var review database.Review
 	database.DB.Table("review").Where("id = ?", id).First(&review)
 
 	if review.ID == "" {
@@ -78,6 +78,6 @@ func Route(router *gin.RouterGroup) {
 	router.GET("/:plugin", getReviews)
 	router.POST("/", postReview)
 	router.PUT("/", putReview)
-	router.DELETE("/:id", deleteReview)
-	router.GET("/:id", getReview)
+	router.DELETE("/:plugin/:id", deleteReview)
+	router.GET("/:plugin/:id", getReview)
 }
