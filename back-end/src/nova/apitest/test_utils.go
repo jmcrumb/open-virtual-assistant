@@ -81,6 +81,7 @@ func TryRequests(args APITestArgs) {
 			result = string(marshalled)
 			assert.Equal(args.T, result, w.Body.String())
 		}
+
 		// check http result values
 		assert.Equal(args.T, test.Status, w.Code)
 
