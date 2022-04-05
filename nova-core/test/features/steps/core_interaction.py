@@ -1,21 +1,23 @@
+import io
+import subprocess
+import sys
 from time import sleep
+from unittest.mock import patch
+
 from behave import *
 from core.nova_core import NovaCore
-from main import text_only_response_handler, text_only_input_handler, audio_response_handler, main
-import sys
-import io
+from core.plugin_registry import registry
+from main import (audio_response_handler, main, text_only_input_handler,
+                  text_only_response_handler)
 from nlp.nlp import SpeechRecognition
 
-def before_all(context):
-    context.real_stdout = sys.stdout
-    context.stdout_mock = io.StringIO()
-    sys.stdout = context.stdout_mock
-
 def after_all(context):
-    sys.stdout = context.real_stdout
+    context.stdout_mock.truncate(0)
+    context.stdout_mock.seek(0)
 
 @given('nova is running')
 def step_impl(context):
+    context.stdout_mock = patch('sys.stdout', new_callable=io.StringIO).start()
     context.core = NovaCore(text_only_response_handler)
 
 @given('nova is running with audio response')
@@ -29,6 +31,7 @@ def step_impl(context, text):
 @then(u'output will include "{text}"')
 def step_impl(context, text):
     output = context.stdout_mock.getvalue()
+    print(output)
     if text not in output:
         fail('%r not in %r' % (text, output))
 
@@ -38,7 +41,7 @@ def step_impl(context, text):
 
 @then(u'the output is successfully converted to audio')
 def step_impl(context):
-    pass
+    raise NotImplementedError(u'STEP: the output is successfully converted to audio')
 
 def audio_response_handler_wrapper(response) -> bool:
     try:
@@ -63,14 +66,17 @@ def step_impl(context):
 
 @given(u'main is running')
 def step_impl(context):
-    context.control_loop = main()
+    # context.control_loop = subprocess.run(['python', 'main.py'])
+    pass
 
 
 @when(u'we request the plugin "{plugin}" download via CLI')
-def step_impl(context):
+def step_impl(context, plugin):
     raise NotImplementedError(u'STEP: When we request the plugin "placeholder" download via CLI')
 
 
 @then(u'the plugin "{plugin}" is in the plugin registry')
-def step_impl(context):
-    raise NotImplementedError(u'STEP: Then the plugin "placeholder" is in the plugin registry')
+def step_impl(context, plugin):
+    registered_plugins = [plugin.__name__ for plugin in registry.keys()]
+    if not plugin in registered_plugins:
+        fail(f'{plugin} not in registry')
