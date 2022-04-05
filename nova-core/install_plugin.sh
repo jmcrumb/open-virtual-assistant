@@ -18,7 +18,7 @@ rebootCore() {
 
 installPlugin() {
     pip install $1
-    python -m pip freeze > "${PWD}/requirements.txt"
+    python -m pip freeze >> "${PWD}/requirements.txt"
 
     echo "$2,$3" >> "plugins.csv"
 

@@ -42,3 +42,4 @@ nova-core/venv/
 __pycache__/
 *.pyc
 .temp_tts_output.mp3
+plugins.csv

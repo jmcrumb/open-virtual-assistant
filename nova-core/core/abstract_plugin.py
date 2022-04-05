@@ -22,3 +22,4 @@ class NovaPlugin(ABC):
     
     def __string__(self) -> str: 
         return __class__.__name__
+

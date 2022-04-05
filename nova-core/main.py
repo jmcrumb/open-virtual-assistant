@@ -42,7 +42,7 @@ def main():
             command: str = input_handler(env)
             core.invoke(input_=command)
         except UNKNOWN_VALUE_ERROR:
-            core.invoke(input_=None, unknown_input=True)  
+            core.invoke(input_=None, unknown_input=True)
 
 def is_ongoing_conversation(last_invoked: float, attention_span: float) -> bool:
     return (time.time() - last_invoked) < attention_span
