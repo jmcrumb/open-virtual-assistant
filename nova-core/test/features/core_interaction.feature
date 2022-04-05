@@ -13,15 +13,10 @@ Feature: User interacts with NOVA core
     Then output will include "Hello! My name is Nova."
 
   Scenario: As an end user, so that the virtual assistant will understand me, [I want text to speech.]
-    Given nova is running
+    Given nova is running with audio
     When we ask "hello there"
     And wait "1" seconds
     Then the output is successfully converted to audio
-
-  Scenario: As an end user, so that I can interact with the virtual assistant within one click or voice invocation, [I want ease of use.]
-    Given nova is running
-    When we ask "nova"
-    Then "nova" recognizes its name
 
   Scenario: As an end user, so that the virtual assistant will understand me, [I want speech to text.]
     Given nlp is running
