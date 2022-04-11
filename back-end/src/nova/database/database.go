@@ -14,8 +14,8 @@ const (
 	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
-	password = "postgres"
-	dbname   = "postgres-test"
+	password = "usdnova"
+	dbname   = "postgres"
 )
 
 var DB *gorm.DB
@@ -51,6 +51,7 @@ func GetTestAccount() (info Account) {
 
 	DB.Table("account").Create(&acc)
 	DB.Table("account").Where("email = ?", acc.Email).First(&result)
+	DB.Table("account").Where("email = ?", acc.Email).First(&result).Set("is_admin", true)
 
 	return result
 }
