@@ -3,6 +3,9 @@ import { Configuration, DefinePlugin } from "webpack";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+import * as webpackDevServer from 'webpack-dev-server';
+
+const API_SRC = "https://localhost:443/"
 
 const webpackConfig = (): Configuration => ({
   entry: "./src/index.tsx",

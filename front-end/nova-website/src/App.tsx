@@ -1,13 +1,19 @@
-import * as React from "react";
-
+import Sandbox from "./components/sandbox";
 import React from "react";
 import "./styles.scss";
+import { ReactQueryDevtools } from "react-query/devtools";
+import { QueryClient, QueryClientProvider} from "react-query";
+
+
+const queryClient = new QueryClient();
 
 const App: React.FC = () => {
-    return (
-        <div className="wrapper">
-            <h1>React 17 and TypeScript 4 App!🚀</h1>
-        </div>
-    );
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Sandbox />
+      <ReactQueryDevtools initialIsOpen />
+    </QueryClientProvider>
+  );
 };
+
 export default App;
