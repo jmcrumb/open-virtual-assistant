@@ -65,6 +65,7 @@ func TestPostPlugin(t *testing.T) {
 					DownloadCount: 0,
 				},
 			},
+			AuthorizedUser: account,
 		},
 		{
 			Body:   `{"invalid":"test"}`,
@@ -78,6 +79,7 @@ func TestPostPlugin(t *testing.T) {
 					DownloadCount: 0,
 				},
 			},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -116,6 +118,7 @@ func TestPutPlugin(t *testing.T) {
 					DownloadCount: 0,
 				},
 			},
+			AuthorizedUser: account,
 		},
 		{
 			Body:   "non-unmarshallable",
@@ -129,6 +132,7 @@ func TestPutPlugin(t *testing.T) {
 					DownloadCount: 0,
 				},
 			},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -152,11 +156,12 @@ func TestDeletePlugin(t *testing.T) {
 	plugin := database.GetTestPlugin(account)
 	tests := []apitest.APITest{
 		{
-			URL:    plugin.ID,
-			Body:   "",
-			Status: http.StatusNoContent,
-			Result: "",
-			Rows:   []interface{}{},
+			URL:            plugin.ID,
+			Body:           "",
+			Status:         http.StatusNoContent,
+			Result:         "",
+			Rows:           []interface{}{},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -186,6 +191,7 @@ func TestGetPlugin(t *testing.T) {
 			Rows: []interface{}{
 				plugin,
 			},
+			AuthorizedUser: account,
 		},
 		{
 			URL:    "invalid",
@@ -194,6 +200,7 @@ func TestGetPlugin(t *testing.T) {
 			Rows: []interface{}{
 				plugin,
 			},
+			AuthorizedUser: account,
 		},
 	}
 

@@ -18,10 +18,6 @@ func main() {
 	authGroup := router.Group("/auth")
 	auth.Route(authGroup)
 
-	// route NLP api
-	nlpGroup := router.Group("/nlp")
-	nlp.Route(nlpGroup)
-
 	// route account database
 	accountGroup := router.Group("/account")
 	accounts.Route(accountGroup)

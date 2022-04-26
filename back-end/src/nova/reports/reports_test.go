@@ -1,4 +1,5 @@
-package reports
+
+AuthorizedUser: account,package reports
 
 import (
 	"fmt"
@@ -59,6 +60,7 @@ func TestGetReports(t *testing.T) {
 			Rows: []interface{}{
 				report,
 			},
+			AuthorizedUser: account,
 		},
 		{
 			URL:    "invalid",
@@ -67,6 +69,7 @@ func TestGetReports(t *testing.T) {
 			Rows: []interface{}{
 				report,
 			},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -104,6 +107,7 @@ func TestPostReport(t *testing.T) {
 					Content: "This plugin broke all of my devices",
 				},
 			},
+			AuthorizedUser: account,
 		},
 		{
 			Body:   `{"invalid":"test"}`,
@@ -116,6 +120,7 @@ func TestPostReport(t *testing.T) {
 					Content: "This plugin broke all of my devices",
 				},
 			},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -155,6 +160,7 @@ func TestPutReport(t *testing.T) {
 					Content: "this plugin made my phone blow up",
 				},
 			},
+			AuthorizedUser: account,
 		},
 		{
 			Body:   "non-unmarshallable",
@@ -167,6 +173,7 @@ func TestPutReport(t *testing.T) {
 					Content: "this plugin made my phone blow up",
 				},
 			},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -197,6 +204,7 @@ func TestDeleteReport(t *testing.T) {
 			Status: http.StatusNoContent,
 			Result: "",
 			Rows:   []interface{}{},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -228,6 +236,7 @@ func TestGetReport(t *testing.T) {
 			Rows: []interface{}{
 				report,
 			},
+			AuthorizedUser: account,
 		},
 		{
 			URL:    fmt.Sprintf("%v/%v", plugin, "invalid"),
@@ -236,6 +245,7 @@ func TestGetReport(t *testing.T) {
 			Rows: []interface{}{
 				report,
 			},
+			AuthorizedUser: account,
 		},
 	}
 

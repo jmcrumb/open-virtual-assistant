@@ -18,6 +18,7 @@ func AuthorizeJWT() gin.HandlerFunc {
 
 		if len(authHeader) <= len(BEARER_SCHEMA) {
 			c.AbortWithStatus(http.StatusUnauthorized)
+			return
 		}
 
 		tokenString := authHeader[len(BEARER_SCHEMA):] // ayo, runtime error: slice bounds out of range [6:0]

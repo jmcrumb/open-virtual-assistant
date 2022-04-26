@@ -2,11 +2,13 @@ package auth
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/jmcrumb/nova/database"
 )
 
 //jwt service
@@ -69,7 +71,23 @@ func (service *jwtServices) ValidateToken(encodedToken string) (*jwt.Token, erro
 	})
 }
 
-func GetMiddlewareAuthenticatedAccountID(c *gin.Context) string {
+func EnforceMiddlewareAuthentication(c *gin.Context, id string, f func(id string)) {
+	fmt.Println(c.Request.Context().Value("account_id").(string))
+	if c.Request.Context().Value("account_id").(string) == id {
+		f(id)
+		return
+	}
+	c.String(http.StatusUnauthorized, "Permission Denied")
+}
+
+func EnforceMiddlewareAuthenticatedAdmin(c *gin.Context, f func()) {
 	auth_id, _ := c.Request.Context().Value("account_id").(string)
-	return auth_id
+	var account database.Account
+	database.DB.Table("account").Where("id = ?", auth_id).First(&account)
+
+	if account.IsAdmin {
+		f()
+		return
+	}
+	c.String(http.StatusUnauthorized, "Permission Denied")
 }
