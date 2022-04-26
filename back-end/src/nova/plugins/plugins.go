@@ -69,9 +69,19 @@ func getPlugin(c *gin.Context) {
 	c.JSON(http.StatusOK, plugin)
 }
 
+func searchPlugin(c *gin.Context) {
+	query := c.Param("query")
+
+	var plugins []database.Plugin
+	database.DB.Raw("SELECT * FROM plugin WHERE tsv_name @@ to_tsquery(?);", query).Find(&plugins)
+
+	c.JSON(http.StatusOK, plugins)
+}
+
 func Route(router *gin.RouterGroup) {
 	router.POST("/", middleware.AuthorizeJWT(), postPlugin)
 	router.PUT("/", middleware.AuthorizeJWT(), putPlugin)
 	router.DELETE("/:id", middleware.AuthorizeJWT(), deletePlugin)
 	router.GET("/:id", getPlugin)
+	router.GET("/search/:query", searchPlugin)
 }
