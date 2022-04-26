@@ -7,24 +7,22 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmcrumb/nova/auth"
 	"github.com/jmcrumb/nova/database"
+	"github.com/jmcrumb/nova/middleware"
 )
 
 func getAccountByID(c *gin.Context) {
 	id := c.Param("id")
 
-	// if id != auth.GetMiddlewareAuthenticatedAccountID(c) {
-	// 	c.String(http.StatusUnauthorized, "Permission Denied")
-	// 	return
-	// }
-
-	var account database.Account
-	database.DB.Table("account").Where("id = ?", id).First(&account)
-	if account.ID != "" {
-		c.JSON(http.StatusOK, account)
+	auth.EnforceMiddlewareAuthentication(c, id, func(id string) {
+		var account database.Account
+		database.DB.Table("account").Where("id = ?", id).First(&account)
+		if account.ID != "" {
+			c.JSON(http.StatusOK, account)
+			return
+		}
+		c.String(http.StatusNotFound, fmt.Sprintf("no account found with id: %v", id))
 		return
-	}
-
-	c.String(http.StatusNotFound, fmt.Sprintf("no account found with id: %v", id))
+	})
 }
 
 func getProfileByID(c *gin.Context) {
@@ -59,6 +57,8 @@ func postAccount(c *gin.Context) {
 		AccountID: accountResult.ID,
 	})
 
+	// TODO: protect against DB returning pre-existing account
+
 	c.JSON(http.StatusCreated, accountResult)
 }
 
@@ -70,12 +70,15 @@ func putAccount(c *gin.Context) {
 		return
 	}
 
-	err := database.DB.Table("account").Where("id = ?", body.ID).Select("FirstName", "Email", "LastName").Updates(&body).Error
-	if err != nil {
-		c.String(http.StatusBadRequest, "invalid email provided")
+	auth.EnforceMiddlewareAuthentication(c, body.ID, func(id string) {
+		err := database.DB.Table("account").Where("id = ?", id).Select("FirstName", "Email", "LastName").Updates(&body).Error
+		if err != nil {
+			c.String(http.StatusBadRequest, "invalid email provided")
+			return
+		}
+		c.Status(http.StatusCreated)
 		return
-	}
-	c.Status(http.StatusCreated)
+	})
 }
 
 func putAccountPassword(c *gin.Context) {
@@ -93,13 +96,15 @@ func putAccountPassword(c *gin.Context) {
 		return
 	}
 
-	err := auth.ResetPassword(account, body.OldPassword, body.NewPassword)
-	if err == nil {
-		accountDB.Update("password", body.NewPassword)
-		c.Status(http.StatusCreated)
-		return
-	}
-	c.String(http.StatusBadRequest, "incorrect information")
+	auth.EnforceMiddlewareAuthentication(c, body.AccountID, func(id string) {
+		err := auth.ResetPassword(account, body.OldPassword, body.NewPassword)
+		if err == nil {
+			accountDB.Update("password", body.NewPassword)
+			c.Status(http.StatusCreated)
+			return
+		}
+		c.String(http.StatusBadRequest, "incorrect information")
+	})
 }
 
 func putProfile(c *gin.Context) {
@@ -115,11 +120,10 @@ func putProfile(c *gin.Context) {
 }
 
 func Route(router *gin.RouterGroup) {
-	// router.GET("/:id", middleware.AuthorizeJWT(), getAccountByID)
-	router.GET("/:id", getAccountByID)
+	router.GET("/:id", middleware.AuthorizeJWT(), getAccountByID)
 	router.POST("/", postAccount)
-	router.PUT("/", putAccount)
-	router.PUT("/reset-password", putAccountPassword)
+	router.PUT("/", middleware.AuthorizeJWT(), putAccount)
+	router.PUT("/reset-password", middleware.AuthorizeJWT(), putAccountPassword)
 
 	router.GET("/profiles/:id", getProfileByID)
 	router.PUT("/profiles", putProfile)

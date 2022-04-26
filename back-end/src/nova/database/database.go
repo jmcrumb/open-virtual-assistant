@@ -51,6 +51,7 @@ func GetTestAccount() (info Account) {
 
 	DB.Table("account").Create(&acc)
 	DB.Table("account").Where("email = ?", acc.Email).First(&result)
+	DB.Table("account").Where("email = ?", acc.Email).First(&result).Set("is_admin", true)
 
 	return result
 }

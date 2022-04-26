@@ -70,6 +70,7 @@ func TestMain(m *testing.M) {
 	// router.Use(gin.Recovery())
 	router = gin.Default()
 	Route(router.Group("/accounts"))
+
 	router.SetTrustedProxies([]string{"localhost"})
 
 	exitVal := m.Run()
@@ -88,6 +89,7 @@ func TestGetAccountByID(t *testing.T) {
 			Rows: []interface{}{
 				account,
 			},
+			AuthorizedUser: account.ID,
 		},
 		{
 			URL:    "badID",
@@ -96,6 +98,7 @@ func TestGetAccountByID(t *testing.T) {
 			Rows: []interface{}{
 				account,
 			},
+			AuthorizedUser: account.ID,
 		},
 	}
 
@@ -221,6 +224,7 @@ func TestPutAccount(t *testing.T) {
 					Email:     "newemail@novatest.com",
 				},
 			},
+			AuthorizedUser: account.ID,
 		},
 		{
 			Body:   "no unmarshall",
@@ -234,6 +238,7 @@ func TestPutAccount(t *testing.T) {
 					Email:     "newemail@novatest.com",
 				},
 			},
+			AuthorizedUser: account.ID,
 		},
 	}
 
@@ -271,6 +276,7 @@ func TestPutAccountPassword(t *testing.T) {
 					Email:     account.Email,
 				},
 			},
+			AuthorizedUser: account.ID,
 		},
 		{
 			Body:   "no unmarshall",
@@ -284,6 +290,7 @@ func TestPutAccountPassword(t *testing.T) {
 					Email:     account.Email,
 				},
 			},
+			AuthorizedUser: account.ID,
 		},
 		{
 			Body: database.UpdatePassword{
@@ -301,6 +308,7 @@ func TestPutAccountPassword(t *testing.T) {
 					Email:     account.Email,
 				},
 			},
+			AuthorizedUser: account.ID,
 		},
 		{
 			Body: database.UpdatePassword{
@@ -318,6 +326,7 @@ func TestPutAccountPassword(t *testing.T) {
 					Email:     account.Email,
 				},
 			},
+			AuthorizedUser: account.ID,
 		},
 	}
 
@@ -355,6 +364,7 @@ func TestPutProfile(t *testing.T) {
 					Photo:     []byte{5, 4, 3, 2, 1, 0},
 				},
 			},
+			AuthorizedUser: account,
 		},
 		{
 			Body:   "no unmarshall",
@@ -367,6 +377,7 @@ func TestPutProfile(t *testing.T) {
 					Photo:     []byte{5, 4, 3, 2, 1, 0},
 				},
 			},
+			AuthorizedUser: account,
 		},
 	}
 
