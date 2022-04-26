@@ -11,7 +11,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
-	"github.com/jmcrumb/nova/database"
 )
 
 // add ability to check on the result given back by a request (for GET)
@@ -21,7 +20,8 @@ type APITest struct {
 	Status int
 	Result interface{}
 
-	Rows []interface{}
+	Rows           []interface{}
+	AuthorizedUser string
 }
 type ComparatorFunc func(a, b interface{}) bool
 
@@ -71,8 +71,12 @@ func TryRequests(args APITestArgs) {
 			body = string(marshalled)
 		}
 		req, _ := http.NewRequest(args.Method, args.BaseURL+test.URL, strings.NewReader(body))
-		ctx := context.WithValue(req.Context(), "account_id", database.GetTestAccount().ID)
-		req = req.WithContext(ctx)
+
+		if test.AuthorizedUser != "" {
+			ctx := context.WithValue(req.Context(), "account_id", test.AuthorizedUser)
+			req = req.WithContext(ctx)
+		}
+
 		args.Router.ServeHTTP(w, req)
 
 		// check result body against expected result

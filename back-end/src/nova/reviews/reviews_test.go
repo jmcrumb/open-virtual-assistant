@@ -29,6 +29,7 @@ func queryReviewRows() []interface{} {
 	for _, review := range reviews {
 		rows = append(rows, review)
 	}
+	AuthorizedUser: account,
 
 	return rows
 }
@@ -59,6 +60,7 @@ func TestGetReviews(t *testing.T) {
 			Rows: []interface{}{
 				review,
 			},
+			AuthorizedUser: account,
 		},
 		{
 			URL:    "invalid",
@@ -67,6 +69,7 @@ func TestGetReviews(t *testing.T) {
 			Rows: []interface{}{
 				review,
 			},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -106,6 +109,7 @@ func TestPostReview(t *testing.T) {
 					Content: "This plugin is great except that it's a little bit slow",
 				},
 			},
+			AuthorizedUser: account,
 		},
 		{
 			Body:   `{"invalid":"test"}`,
@@ -119,6 +123,7 @@ func TestPostReview(t *testing.T) {
 					Content: "This plugin is great except that it's a little bit slow",
 				},
 			},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -160,6 +165,7 @@ func TestPutReview(t *testing.T) {
 					Content: "this plugin is actually terrible",
 				},
 			},
+			AuthorizedUser: account,
 		},
 		{
 			Body:   "non-unmarshallable",
@@ -173,6 +179,7 @@ func TestPutReview(t *testing.T) {
 					Content: "this plugin is actually terrible",
 				},
 			},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -203,6 +210,7 @@ func TestDeleteReview(t *testing.T) {
 			Status: http.StatusNoContent,
 			Result: "",
 			Rows:   []interface{}{},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -234,6 +242,7 @@ func TestGetReview(t *testing.T) {
 			Rows: []interface{}{
 				review,
 			},
+			AuthorizedUser: account,
 		},
 		{
 			URL:    fmt.Sprintf("%v/%v", plugin, "invalid"),
@@ -242,6 +251,7 @@ func TestGetReview(t *testing.T) {
 			Rows: []interface{}{
 				review,
 			},
+			AuthorizedUser: account,
 		},
 	}
 
