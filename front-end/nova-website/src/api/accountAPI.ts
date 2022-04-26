@@ -1,5 +1,7 @@
 import axios from "axios";
+import { useQuery } from "react-query";
 import { backEndSource } from "./helper";
+import https from "./http-common";
 
 // use react query, but note, designed to be used with react 17 so some issues may occur
 
@@ -38,56 +40,14 @@ export class Profile {
 }
 
 export class AccountAPI {
-
-    public static async createAccount(fname: string, lname: string, email: string, password: string): Promise<any> {
-        try {
-            const response = await axios.post(`${backEndSource}account/`, {
-                first_name: fname,
-                last_name: lname,
-                password: password,
-                email: email
-            }, 
-            // {
-            //     httpsAgent: httpsAgent
-            // }
-            );
-            return new Account(response.data);
-        } catch (error) {
-            return error;
-        }
-    }
-
-    public static async getAccountByID(id: string): Promise<any> {
-        try {
-            const response = await axios.get(`${backEndSource}account/${id}`);
-            return new Account(response.data);
-        } catch (error) {
-            return error;
-        }
-    }
-
-    public static async updateAccount(account: Account): Promise<any> {
-        try {
-            const response = await axios.put(`${backEndSource}account/`, JSON.stringify(account));
-        } catch (error) {
-            return error;
-        }
-    }
-
-    public static async getProfileByID(id: string): Promise<any> {
-        try {
-            const response = await axios.get(`${backEndSource}account/profile/${id}`);
-            return new Profile(response.data);
-        } catch (error) {
-            return error;
-        }
-    }
-
-    public static async updateProfile(profile: Profile) {
-        try {
-            const response = await axios.put(`${backEndSource}account/profile/`, JSON.stringify(profile));
-        } catch (error) {
-            return error;
-        }
-    }
+    
+    public static useQueryAccountByID() {
+        const accountID = "425bb481-dd67-41e5-820a-5ec0c6cc2bbd"
+        return useQuery(["account", accountID], async () => {
+          const { data } = await axios.get(
+            `https://127.0.0.1:443/account/${accountID}`
+          );
+          return new Account(data);
+        });
+      }
 }

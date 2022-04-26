@@ -5,6 +5,8 @@ import (
 	"github.com/jmcrumb/nova/accounts"
 	"github.com/jmcrumb/nova/auth"
 	"github.com/jmcrumb/nova/database"
+	"github.com/jmcrumb/nova/middleware"
+	"github.com/jmcrumb/nova/nlp"
 	"github.com/jmcrumb/nova/plugins"
 )
 
@@ -23,6 +25,9 @@ func main() {
 	// route plugin store api
 	pluginGroup := router.Group("/plugin")
 	plugins.Route(pluginGroup)
+
+	// Enable CORS
+	router.Use(middleware.CORSMiddleware())
 
 	router.SetTrustedProxies([]string{"localhost", "127.0.0.1"})
 	router.RunTLS(":443", "server.crt", "server.key")
