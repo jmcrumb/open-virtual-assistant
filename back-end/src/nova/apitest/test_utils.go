@@ -1,6 +1,7 @@
 package apitest
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -17,9 +18,10 @@ type APITest struct {
 	URL    string
 	Body   interface{}
 	Status int
-	Result string
+	Result interface{}
 
-	Rows []interface{}
+	Rows           []interface{}
+	AuthorizedUser string
 }
 type ComparatorFunc func(a, b interface{}) bool
 
@@ -69,10 +71,24 @@ func TryRequests(args APITestArgs) {
 			body = string(marshalled)
 		}
 		req, _ := http.NewRequest(args.Method, args.BaseURL+test.URL, strings.NewReader(body))
+
+		if test.AuthorizedUser != "" {
+			ctx := context.WithValue(req.Context(), "account_id", test.AuthorizedUser)
+			req = req.WithContext(ctx)
+		}
+
 		args.Router.ServeHTTP(w, req)
 
 		// check result body against expected result
-		assert.Equal(args.T, test.Result, w.Body.String())
+		var result string
+		if reflect.TypeOf(test.Result) == reflect.TypeOf("") {
+			result = test.Result.(string)
+			assert.MatchRegex(args.T, w.Body.String(), result)
+		} else {
+			marshalled, _ := json.Marshal(&test.Result)
+			result = string(marshalled)
+			assert.Equal(args.T, result, w.Body.String())
+		}
 
 		// check http result values
 		assert.Equal(args.T, test.Status, w.Code)

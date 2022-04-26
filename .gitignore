@@ -41,3 +41,12 @@ web-build/
 nova-core/venv/
 __pycache__/
 *.pyc
+plugins.csv
+
+# Infosec
+crypto/
+*.key
+*.pem
+*.crt
+*.srl
+*.csr

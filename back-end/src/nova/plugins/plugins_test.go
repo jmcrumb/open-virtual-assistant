@@ -37,7 +37,7 @@ func TestMain(m *testing.M) {
 	database.InitializeDB()
 
 	router = gin.Default()
-	Route(router.Group("/plugin"))
+	Route(router.Group("/plugins"))
 	router.SetTrustedProxies([]string{"localhost"})
 
 	exitVal := m.Run()
@@ -47,7 +47,7 @@ func TestMain(m *testing.M) {
 func TestPostPlugin(t *testing.T) {
 	database.ClearDB()
 
-	account, _ := database.GetTestAccount()
+	account := database.GetTestAccount().ID
 	tests := []apitest.APITest{
 		{
 			Body: database.NewPlugin{
@@ -56,7 +56,7 @@ func TestPostPlugin(t *testing.T) {
 				About:      "a short description about the plugin",
 			},
 			Status: http.StatusCreated,
-			Result: "",
+			Result: `.+`,
 			Rows: []interface{}{
 				database.Plugin{
 					Publisher:     account,
@@ -65,6 +65,7 @@ func TestPostPlugin(t *testing.T) {
 					DownloadCount: 0,
 				},
 			},
+			AuthorizedUser: account,
 		},
 		{
 			Body:   `{"invalid":"test"}`,
@@ -78,6 +79,7 @@ func TestPostPlugin(t *testing.T) {
 					DownloadCount: 0,
 				},
 			},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -87,7 +89,7 @@ func TestPostPlugin(t *testing.T) {
 		Tests:  tests,
 
 		Method:  "POST",
-		BaseURL: "/plugin/",
+		BaseURL: "/plugins/",
 
 		QueryRows:  queryPluginRows,
 		Comparator: comparePlugins,
@@ -97,16 +99,8 @@ func TestPostPlugin(t *testing.T) {
 func TestPutPlugin(t *testing.T) {
 	database.ClearDB()
 
-	account, _ := database.GetTestAccount()
-	newPlugin := database.NewPlugin{
-		Publisher:  account,
-		SourceLink: "https://source.com/plugin/download",
-		About:      "a short description about the plugin",
-	}
-	database.DB.Table("plugin").Create(&newPlugin)
-	var plugin database.Plugin
-	database.DB.Table("plugin").Where("source_link = ?", newPlugin.SourceLink).Find(&plugin)
-
+	account := database.GetTestAccount().ID
+	plugin := database.GetTestPlugin(account)
 	tests := []apitest.APITest{
 		{
 			Body: database.Plugin{
@@ -124,6 +118,7 @@ func TestPutPlugin(t *testing.T) {
 					DownloadCount: 0,
 				},
 			},
+			AuthorizedUser: account,
 		},
 		{
 			Body:   "non-unmarshallable",
@@ -137,6 +132,7 @@ func TestPutPlugin(t *testing.T) {
 					DownloadCount: 0,
 				},
 			},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -146,7 +142,7 @@ func TestPutPlugin(t *testing.T) {
 		Tests:  tests,
 
 		Method:  "PUT",
-		BaseURL: "/plugin/",
+		BaseURL: "/plugins/",
 
 		QueryRows:  queryPluginRows,
 		Comparator: comparePlugins,
@@ -156,23 +152,16 @@ func TestPutPlugin(t *testing.T) {
 func TestDeletePlugin(t *testing.T) {
 	database.ClearDB()
 
-	account, _ := database.GetTestAccount()
-	newPlugin := database.NewPlugin{
-		Publisher:  account,
-		SourceLink: "https://source.com/plugin/download",
-		About:      "a short description about the plugin",
-	}
-	database.DB.Table("plugin").Create(&newPlugin)
-	var plugin database.Plugin
-	database.DB.Table("plugin").Where("source_link = ?", newPlugin.SourceLink).Find(&plugin)
-
+	account := database.GetTestAccount().ID
+	plugin := database.GetTestPlugin(account)
 	tests := []apitest.APITest{
 		{
-			URL:    plugin.ID,
-			Body:   "",
-			Status: http.StatusNoContent,
-			Result: "",
-			Rows:   []interface{}{},
+			URL:            plugin.ID,
+			Body:           "",
+			Status:         http.StatusNoContent,
+			Result:         "",
+			Rows:           []interface{}{},
+			AuthorizedUser: account,
 		},
 	}
 
@@ -182,7 +171,46 @@ func TestDeletePlugin(t *testing.T) {
 		Tests:  tests,
 
 		Method:  "DELETE",
-		BaseURL: "/plugin/",
+		BaseURL: "/plugins/",
+
+		QueryRows:  queryPluginRows,
+		Comparator: comparePlugins,
+	})
+}
+
+func TestGetPlugin(t *testing.T) {
+	database.ClearDB()
+
+	account := database.GetTestAccount().ID
+	plugin := database.GetTestPlugin(account)
+	tests := []apitest.APITest{
+		{
+			URL:    plugin.ID,
+			Status: http.StatusOK,
+			Result: plugin,
+			Rows: []interface{}{
+				plugin,
+			},
+			AuthorizedUser: account,
+		},
+		{
+			URL:    "invalid",
+			Status: http.StatusBadRequest,
+			Result: "invalid plugin ID",
+			Rows: []interface{}{
+				plugin,
+			},
+			AuthorizedUser: account,
+		},
+	}
+
+	apitest.TryRequests(apitest.APITestArgs{
+		T:      t,
+		Router: router,
+		Tests:  tests,
+
+		Method:  "GET",
+		BaseURL: "/plugins/",
 
 		QueryRows:  queryPluginRows,
 		Comparator: comparePlugins,

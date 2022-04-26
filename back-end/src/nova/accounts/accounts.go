@@ -1,6 +1,7 @@
 package accounts
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,30 +13,29 @@ import (
 func getAccountByID(c *gin.Context) {
 	id := c.Param("id")
 
-	if id != auth.GetMiddlewareAuthenticatedAccountID(c) {
-		c.String(http.StatusUnauthorized, "Permission Denied")
+	auth.EnforceMiddlewareAuthentication(c, id, func(id string) {
+		var account database.Account
+		database.DB.Table("account").Where("id = ?", id).First(&account)
+		if account.ID != "" {
+			c.JSON(http.StatusOK, account)
+			return
+		}
+		c.String(http.StatusNotFound, fmt.Sprintf("no account found with id: %v", id))
 		return
-	}
-  
-	var account database.Account
-	database.DB.Table("account").Where("id = ?", id).First(&account)
-	if account.ID != "" {
-		c.JSON(http.StatusOK, account)
-		return
-	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "account not found"})
+	})
 }
 
 func getProfileByID(c *gin.Context) {
 	id := c.Param("id")
 
 	var profile database.Profile
-	database.DB.Table("account").Where("id = ?", id).First(&profile)
+	database.DB.Table("profile").Where("account_id = ?", id).First(&profile)
 	if profile.AccountID != "" {
 		c.JSON(http.StatusOK, profile)
 		return
 	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "profile not found"})
+
+	c.String(http.StatusNotFound, fmt.Sprintf("no profile found with id: %v", id))
 }
 
 func postAccount(c *gin.Context) {
@@ -43,18 +43,21 @@ func postAccount(c *gin.Context) {
 	var accountResult database.Account
 
 	if err := c.BindJSON(&body); err != nil {
-		c.String(http.StatusBadRequest, "unable to unmarhsall request body")
+		c.String(http.StatusBadRequest, "unable to unmarshall request body")
 		return
 	}
 
 	// Secure password
 	body.Password = auth.HashPassword(body.Password)
 
+	// do a regex match on the email to make sure it's valid
 	database.DB.Table("account").Create(&body)
 	database.DB.Table("account").Where("email = ?", body.Email).First(&accountResult)
 	database.DB.Table("profile").Create(&database.Profile{
 		AccountID: accountResult.ID,
 	})
+
+	// TODO: protect against DB returning pre-existing account
 
 	c.JSON(http.StatusCreated, accountResult)
 }
@@ -63,12 +66,19 @@ func putAccount(c *gin.Context) {
 	var body database.Account
 
 	if err := c.BindJSON(&body); err != nil {
-		c.String(http.StatusBadRequest, "unable to unmarhsall request body")
+		c.String(http.StatusBadRequest, "unable to unmarshall request body")
 		return
 	}
 
-	database.DB.Table("account").Where("id = ?", body.ID).Select("FirstName", "Email", "LastName").Updates(&body)
-	c.Status(http.StatusCreated)
+	auth.EnforceMiddlewareAuthentication(c, body.ID, func(id string) {
+		err := database.DB.Table("account").Where("id = ?", id).Select("FirstName", "Email", "LastName").Updates(&body).Error
+		if err != nil {
+			c.String(http.StatusBadRequest, "invalid email provided")
+			return
+		}
+		c.Status(http.StatusCreated)
+		return
+	})
 }
 
 func putAccountPassword(c *gin.Context) {
@@ -76,7 +86,7 @@ func putAccountPassword(c *gin.Context) {
 	var account database.Account
 
 	if err := c.BindJSON(&body); err != nil {
-		c.String(http.StatusBadRequest, "unable to unmarhsall request body")
+		c.String(http.StatusBadRequest, "unable to unmarshall request body")
 		return
 	}
 
@@ -86,20 +96,22 @@ func putAccountPassword(c *gin.Context) {
 		return
 	}
 
-	err := auth.ResetPassword(account, body.OldPassword, body.NewPassword)
-	if err == nil {
-		accountDB.Update("password", body.NewPassword)
-		c.Status(http.StatusCreated)
-		return
-	}
-	c.String(http.StatusBadRequest, "incorrect information")
+	auth.EnforceMiddlewareAuthentication(c, body.AccountID, func(id string) {
+		err := auth.ResetPassword(account, body.OldPassword, body.NewPassword)
+		if err == nil {
+			accountDB.Update("password", body.NewPassword)
+			c.Status(http.StatusCreated)
+			return
+		}
+		c.String(http.StatusBadRequest, "incorrect information")
+	})
 }
 
 func putProfile(c *gin.Context) {
 	var body database.Profile
 
 	if err := c.BindJSON(&body); err != nil {
-		c.String(http.StatusBadRequest, "unable to unmarhsall request body")
+		c.String(http.StatusBadRequest, "unable to unmarshall request body")
 		return
 	}
 
@@ -110,9 +122,9 @@ func putProfile(c *gin.Context) {
 func Route(router *gin.RouterGroup) {
 	router.GET("/:id", middleware.AuthorizeJWT(), getAccountByID)
 	router.POST("/", postAccount)
-	router.PUT("/", putAccount)
-	router.POST("/reset-password", putAccountPassword)
+	router.PUT("/", middleware.AuthorizeJWT(), putAccount)
+	router.PUT("/reset-password", middleware.AuthorizeJWT(), putAccountPassword)
 
-	router.GET("/profile/:id", getProfileByID)
-	router.PUT("/profile", putProfile)
+	router.GET("/profiles/:id", getProfileByID)
+	router.PUT("/profiles", putProfile)
 }
