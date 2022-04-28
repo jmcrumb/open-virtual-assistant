@@ -3,7 +3,7 @@ import * as React from "react";
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "react-query";
 import { Account, AccountAPI } from "../api/accountAPI";
 import { ReactQueryDevtools } from "react-query/devtools";
-import { Container } from "@material-ui/core";
+import Container from "@mui/material/Container";
 
 
 const queryClient = new QueryClient();

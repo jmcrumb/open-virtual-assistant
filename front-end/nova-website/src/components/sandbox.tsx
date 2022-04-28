@@ -1,8 +1,8 @@
-import { Container } from "@material-ui/core";
 import { AccountAPI } from "../api/accountAPI";
 import * as React from "react";
 import { useQueryClient } from "react-query";
 import { AccountCard } from "./account";
+import Container from "@mui/material/Container";
 
 let Logo = "https://logrocket-assets.io/static/home-hero-c97849b227a3d3015730e3371a76a7f0.svg";
 export default class Sandbox extends React.Component<{}> {
@@ -13,7 +13,6 @@ export default class Sandbox extends React.Component<{}> {
         return (
             <Container>
                 <p>Account Test</p>
-                <Example />
             </Container>
         );
     }
