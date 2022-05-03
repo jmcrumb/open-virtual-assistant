@@ -1,5 +1,26 @@
+html { 
+  font-size: 16px; 
+}
 .wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.padded-paper {
+  padding: 2em;
+}
+
+.list-card {
+  margin-bottom: 2em;
+  padding: 1em;
+}
+
+.nova-chip {
+  height: 52.5;
+}
+
+.btn-bottom {
+  position: absolute;
+  top: 10%;
 }
