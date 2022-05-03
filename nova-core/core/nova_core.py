@@ -64,10 +64,23 @@ class AsyncPluginThreadManager:
         self.response_thread = ResponseLoop(self, response_handler)
         self.response_thread.start()
 
-    def dispatch(self, plugin: NovaPlugin, command: str, is_secondary: bool=False):
-        t: Thread = PluginThread(self, plugin, command, is_secondary)
+    def dispatch(self, plugin: NovaPlugin, command: str):
+        t: Thread = PluginThread(self, plugin, command)
         t.start()
         self.active_threads.add(t)
+
+    def invoke(self, input_=None, unknown_input=False):
+        if unknown_input:
+            self.dispatch(self.command_not_found, '')
+            return
+        if not input_: 
+            return
+            
+        command: str = input_.lower()
+
+        plugin: NovaPlugin = self.syntax_tree.match_command(command.lower())
+        
+        self.dispatch(plugin, command)
 
     def __del__(self):
         # TODO: kill recieve thread
@@ -77,28 +90,18 @@ class AsyncPluginThreadManager:
 
 class PluginThread(Thread):
 
-        def __init__(self, manager: AsyncPluginThreadManager, plugin: NovaPlugin, command: str, is_secondary: bool=False):
+        def __init__(self, manager: AsyncPluginThreadManager, plugin: NovaPlugin, command: str):
             super().__init__()
             self.manager = manager
             self.plugin = plugin
             self.command = command
-            self.is_secondary = is_secondary
 
         def run(self):
-            response = None
-            if self.is_secondary:
-                response = self.plugin.execute_secondary_command(self.command)
-                if response:
-                    self.send_response(response)
-                else:
-                    self.send_response(self.manager.command_not_found.execute(self.command))
+            response = self.plugin.execute(self.command)
+            if response:
+                self.send_response(response)
             else:
-                response = self.plugin.execute(self.command)
-                if response:
-                    self.send_response(response)
-                else:
-                    self.is_secondary = True
-                    self.run()
+                self.manager.invoke(self.command)
 
         def send_response(self, response):
             self.manager.buffer.put(response)
@@ -128,7 +131,6 @@ class NovaCore:
         self.CommandNotFound = CommandNotFoundPlugin
         self.syntax_tree: SyntaxTree = SyntaxTree(self.CommandNotFound())
         self._initialize_plugins()
-        self.mru_plugin: NovaPlugin = None
         self.thread_manager = AsyncPluginThreadManager(response_handler, self.CommandNotFound)
 
     def _initialize_plugins(self):
@@ -145,8 +147,6 @@ class NovaCore:
         command: str = input_.lower()
 
         plugin: NovaPlugin = self.syntax_tree.match_command(command.lower())
-        if self.mru_plugin and isinstance(plugin, self.CommandNotFound):
-            self.thread_manager.dispatch(self.mru_plugin, command, is_secondary=True)
-        else:
-            self.thread_manager.dispatch(plugin, command)
-            self.mru_plugin = plugin
+
+        self.thread_manager.dispatch(plugin, command)
+        self.mru_plugin = plugin

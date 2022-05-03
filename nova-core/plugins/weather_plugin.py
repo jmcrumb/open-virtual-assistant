@@ -14,20 +14,23 @@ class WeatherPlugin():
 
     def _parse_current_json(self, json: dict) -> str:
         return ('The weather in {} is currently {} degrees and {}.'.format(json['location']['name'],
-            json['current']['temp_f'], json['current']['condition']['text']))
+            round(json['current']['temp_f']), json['current']['condition']['text']))
 
     def _parse_current_json_full(self, json: dict) -> str:
         return ('The weather in {} is currently {} degrees and {}. There are {} mile per hour winds'
             ' with ocational gusts of {} miles per hour. The humidity today is at {} percent, and'
             ' the air quality has scored a {} on the US EPA Index'.format(json['location']['name'],
-            json['current']['temp_f'], json['current']['condition']['text'], 
-            json['current']['wind_mph'], json['current']['gust_mph'], json['current']['humidity'], 
+            round(json['current']['temp_f']), json['current']['condition']['text'], 
+            round(json['current']['wind_mph']), round(json['current']['gust_mph']), round(json['current']['humidity']), 
             json['current']['air_quality']['us-epa-index']))
 
     def _parse_forecast_json(self, json: dict) -> str:
         msg = ('Here is the upcoming forcast for {}. Today, you can expect a high of {} and a low'
             ' of {} degrees with wind speeds around {}. Tomorrow, it will be as warm as {} and as'
-            ' cool as {} with {} mile per hour winds.'.format('todo', 'todo', 'todo', 'todo', 'todo', 'todo', 'todo'))
+            ' cool as {} with {} mile per hour winds.'.format(json['location']['name'], 
+            round(json['forecast']['forecastday'][0]['day']['maxtemp_f']), round(json['forecast']['forecastday'][0]['day']['mintemp_f']), 
+            round(json['forecast']['forecastday'][0]['day']['maxwind_mph']), round(json['forecast']['forecastday'][1]['day']['maxtemp_f']), 
+            round(json['forecast']['forecastday'][1]['day']['mintemp_f']), round(json['forecast']['forecastday'][1]['day']['maxwind_mph'])))
 
         if (len(json['forecast']['forecastday']) > 1):
             avg_high = 0
@@ -41,9 +44,9 @@ class WeatherPlugin():
                 if day['day']['daily_will_it_rain'] > 0:
                     rainy_days.append(day['date'])
 
-            avg_high = avg_high / len(json['forecast']['forecastday'])
-            avg_low = avg_low / len(json['forecast']['forecastday'])
-            avg_wind = avg_wind / len(json['forecast']['forecastday'])
+            avg_high = round(avg_high / len(json['forecast']['forecastday']))
+            avg_low = round(avg_low / len(json['forecast']['forecastday']))
+            avg_wind = round(avg_wind / len(json['forecast']['forecastday']))
 
             msg += ('Later this week, you\'ll see highs of {} degrees and lows of {} degrees on'
             ' average. Winds will be about {} miles per hour.'.format(avg_high, avg_low, avg_wind))

@@ -7,6 +7,3 @@ class HelloWorldPlugin(NovaPlugin):
 
     def execute(self, command: str) -> str:
         return 'Hello! My name is Nova.'
-
-    def execute_secondary_command(self, command: str) -> str:
-        return 'To teach me more fun things to do, go to the plugin store.'
