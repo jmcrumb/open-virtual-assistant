@@ -8,6 +8,7 @@ class WeatherPlugin():
     def __init__(self):
         self.home = 'San Diego'
         self.last_location = None
+        self.key = ''
 
     def get_keywords(self) -> list:
         return ['weather', 'temperature']
@@ -54,8 +55,8 @@ class WeatherPlugin():
         return msg
 
     def _get_current(self, location: str, full: bool) -> str:
-        api_call = ('http://api.weatherapi.com/v1/current.json?key=9cfee2c6b5f249f9919211624220704'
-            '&q={}'.format(location))
+        api_call = ('http://api.weatherapi.com/v1/current.json?key={}'
+            '&q={}'.format(self.key, location))
         if full:
             rsp = get(api_call + '&aqi=yes')
 
@@ -72,8 +73,8 @@ class WeatherPlugin():
         return msg
 
     def _get_forecast(self, location: str, days: int) -> str:
-        api_call = ('http://api.weatherapi.com/v1/forecast.json?key=9cfee2c6b5f249f9919211624220704'
-            '&q={}&days={}&aqi=no&alerts=no'.format(location, days))
+        api_call = ('http://api.weatherapi.com/v1/forecast.json?key={}'
+            '&q={}&days={}&aqi=no&alerts=no'.format(self.key, location, days))
         rsp = get(api_call)
 
         if rsp.ok:
