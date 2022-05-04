@@ -82,6 +82,6 @@ func Route(router *gin.RouterGroup) {
 	router.POST("/", middleware.AuthorizeJWT(), postPlugin)
 	router.PUT("/", middleware.AuthorizeJWT(), putPlugin)
 	router.DELETE("/:id", middleware.AuthorizeJWT(), deletePlugin)
-	router.GET("/:id", getPlugin)
+	router.GET("/:id", middleware.CORSMiddleware(), getPlugin)
 	router.GET("/search/:query", searchPlugin)
 }

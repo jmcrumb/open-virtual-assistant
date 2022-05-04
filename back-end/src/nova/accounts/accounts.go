@@ -120,7 +120,7 @@ func putProfile(c *gin.Context) {
 }
 
 func Route(router *gin.RouterGroup) {
-	router.GET("/:id", middleware.AuthorizeJWT(), getAccountByID)
+	router.GET("/:id", getAccountByID)
 	router.POST("/", postAccount)
 	router.PUT("/", middleware.AuthorizeJWT(), putAccount)
 	router.PUT("/reset-password", middleware.AuthorizeJWT(), putAccountPassword)

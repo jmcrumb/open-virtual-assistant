@@ -1,5 +1,4 @@
-
-AuthorizedUser: account,package reports
+package reports
 
 import (
 	"fmt"
@@ -199,11 +198,11 @@ func TestDeleteReport(t *testing.T) {
 
 	tests := []apitest.APITest{
 		{
-			URL:    fmt.Sprintf("%v/%v", plugin, report.ID),
-			Body:   "",
-			Status: http.StatusNoContent,
-			Result: "",
-			Rows:   []interface{}{},
+			URL:            fmt.Sprintf("%v/%v", plugin, report.ID),
+			Body:           "",
+			Status:         http.StatusNoContent,
+			Result:         "",
+			Rows:           []interface{}{},
 			AuthorizedUser: account,
 		},
 	}
