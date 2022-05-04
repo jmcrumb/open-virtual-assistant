@@ -4,7 +4,7 @@ import { BACKEND_SRC } from "./helper";
 
 export class Review {
     id: string;
-    source_review: string;
+    source_link: string;
     account: string;
     plugin: string;
     rating: number;
@@ -12,7 +12,7 @@ export class Review {
 
     constructor(json: { [key: string]: any }) {
         this.id = json.id;
-        this.source_review = json.source_review;
+        this.source_link = json.source_link;
         this.account = json.account;
         this.plugin = json.plugin;
         this.rating = json.rating;
@@ -66,37 +66,4 @@ export class Plugin {
         this.published_on = json.published_on;
         this.reviews = [];
     }
-
-    getReviews(): Review[] {
-        if (this.reviews == []) { 
-            this.reviews = (() => {
-                const { status, data, error, isFetching } =
-                    useQueryReviewByPluginID(this.id);
-                return data;
-            })();
-        }
-
-        return this.reviews;
-    }
-}
-
-
-export function useQueryPluginByID(id: string) {
-    return useQuery(["plugin", id], async () => {
-        const { data } = await axios.get(`${BACKEND_SRC}plugin/${id}`);
-        return new Plugin(data);
-    });
-}
-
-export function useQueryReviewByPluginID(id: string) {
-    return useQuery(["plugin-reviews", id], async () => {
-        const { data } = await axios.get(`${BACKEND_SRC}review/${id}`);
-
-        const reviews: Review[] = [];
-        data.forEach((element) => {
-            reviews.push(new Review(element));
-        });
-
-        return reviews;
-    });
 }
