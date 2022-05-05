@@ -1,7 +1,6 @@
 
-import { Plugin, Review, useQueryPluginByID } from "../api/pluginStoreAPI";
+import { Plugin, Review } from "../api/pluginStoreAPI";
 import * as React from "react";
-import { useQueryClient } from "react-query";
 import Container from "@mui/material/Container";
 import { Box, Button, Card, CardActions, CardContent, Chip, Grid, Link, Modal, Paper, Rating, Skeleton, Stack, Typography } from "@mui/material";
 import ReactTimeAgo from 'react-time-ago';

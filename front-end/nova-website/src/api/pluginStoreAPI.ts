@@ -1,5 +1,4 @@
 import axios from "axios";
-import { useQuery, useQueryClient } from "react-query";
 import { BACKEND_SRC } from "./helper";
 
 export class Review {
