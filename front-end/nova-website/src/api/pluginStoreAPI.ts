@@ -1,18 +1,32 @@
+import axios from "axios";
+import { useQuery, useQueryClient } from "react-query";
+import { BACKEND_SRC } from "./helper";
+
 export class Review {
     id: string;
-    sourceReview: string;
-    user: string;
+    source_link: string;
+    account: string;
     plugin: string;
     rating: number;
     content: string;
 
-    constructor(json: {[key: string]: any}) {
+    constructor(json: { [key: string]: any }) {
         this.id = json.id;
-        this.sourceReview = json.sourceReview;
-        this.user = json.user;
+        this.source_link = json.source_link;
+        this.account = json.account;
         this.plugin = json.plugin;
         this.rating = json.rating;
         this.content = json.content;
+    }
+
+    public static average(reviews: Review[]) {
+        let val = 0.0;
+
+        reviews.forEach((review) => {
+            val += review.rating;
+        });
+
+        return val / reviews.length;
     }
 }
 
@@ -23,7 +37,7 @@ export class Report {
     content: string;
     is_resolved: string;
 
-    constructor(json: {[key: string]: any}) {
+    constructor(json: { [key: string]: any }) {
         this.id = json.id;
         this.user = json.user;
         this.plugin = json.plugin;
@@ -34,22 +48,22 @@ export class Report {
 
 export class Plugin {
     id: string;
+    name: string;
     publisher: string;
     sourceLink: string;
     about: string;
-    downloadCount: number;
-    publishedOn: Date;
+    download_count: number;
+    published_on: Date;
+    reviews: Review[];
 
-    constructor(json: {[key: string]: any}) {
+    constructor(json: { [key: string]: any }) {
         this.id = json.id;
+        this.name = json.name;
         this.publisher = json.publisher;
         this.sourceLink = json.sourceLink;
         this.about = json.about;
-        this.downloadCount = json.downloadCount;
-        this.publishedOn = json.publishedOn;
+        this.download_count = json.download_count;
+        this.published_on = json.published_on;
+        this.reviews = [];
     }
-}
-
-export class PluginStoreAPI {
-
 }

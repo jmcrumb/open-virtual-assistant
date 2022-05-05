@@ -1,61 +1,58 @@
-import { AccountAPI } from "../api/accountAPI";
+import { AccountAPI, useQueryAccountByID } from "../api/accountAPI";
 import * as React from "react";
 import { useQueryClient } from "react-query";
 import { AccountCard } from "./account";
 import Container from "@mui/material/Container";
+import { PluginViewPublic } from "./plugin";
 
-let Logo = "https://logrocket-assets.io/static/home-hero-c97849b227a3d3015730e3371a76a7f0.svg";
-export default class Sandbox extends React.Component<{}> {
-    render() {
+export default function Sandbox() {
+  const pluginID = "3f094753-6d45-4897-a749-c51378ddbe13";
 
-        let accountId: string = "425bb481-dd67-41e5-820a-5ec0c6cc2bbd";
-
-        return (
-            <Container>
-                <p>Account Test</p>
-            </Container>
-        );
-    }
+  return (
+    <Container>
+      {/* <Example /> */}
+      <PluginViewPublic id={pluginID} />
+    </Container>
+  );
 }
 
 function Example() {
+  const queryClient = useQueryClient();
+  const { status, data, error, isFetching } = useQueryAccountByID();
 
-    const queryClient = useQueryClient();
-    const { status, data, error, isFetching } = AccountAPI.useQueryAccountByID();
-  
-    return (
+  return (
+    <div>
       <div>
-        <div>
-          {status === "loading" ? (
-            "Loading..."
-          ) : status === "error" ? (
-            <span>Error: {error}</span>
-          ) : (
-            <>
-              <div>
-                  <p key={data.id}>
-                    <a
-                      onClick={() => alert("action")}
-                      href="#"
-                      style={
-                        // We can access the query data here to show bold links for
-                        // ones that are cached
-                        queryClient.getQueryData(["post", data.id])
-                          ? {
-                              fontWeight: "bold",
-                              color: "green",
-                            }
-                          : {}
-                      }
-                    >
-                      {data.email}
-                    </a>
-                  </p>
-              </div>
-              <div>{isFetching ? "Background Updating..." : " "}</div>
-            </>
-          )}
-        </div>
+        {status === "loading" ? (
+          "Loading..."
+        ) : status === "error" ? (
+          <span>Error: {error}</span>
+        ) : (
+          <>
+            <div>
+              <p key={data.id}>
+                <a
+                  onClick={() => alert("action")}
+                  href="#"
+                  style={
+                    // We can access the query data here to show bold links for
+                    // ones that are cached
+                    queryClient.getQueryData(["post", data.id])
+                      ? {
+                          fontWeight: "bold",
+                          color: "green",
+                        }
+                      : {}
+                  }
+                >
+                  {data.email}
+                </a>
+              </p>
+            </div>
+            <div>{isFetching ? "Background Updating..." : " "}</div>
+          </>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
+}
