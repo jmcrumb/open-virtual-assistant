@@ -31,16 +31,25 @@
     "axios": "^0.26.1",
     "http-proxy-middleware": "^2.0.6",
     "https": "^1.0.0",
+    "javascript-time-ago": "^2.3.13",
     "jest": "^27.5.1",
-    "react": "^17.0.0",
+    "react": "^17.0.2",
     "react-dom": "^17.0.0",
     "react-query": "^3.34.19",
     "react-router-dom": "^6.3.0",
     "react-scripts": "^5.0.0",
+<<<<<<< HEAD
     "sass": "^1.51.0",
+=======
+    "react-time-ago": "^7.1.9",
+>>>>>>> origin/main
     "serve": "^13.0.2",
     "ts-loader": "^9.2.8",
-    "typescript": "^4.6.3"
+    "typescript": "^4.6.4"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
   },
   "browserslist": {
     "production": [
@@ -60,12 +69,18 @@
     "@types/webpack-dev-server": "^4.7.2",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
+<<<<<<< HEAD
     "css-loader": "^6.7.1",
     "eslint": "^8.13.0",
+=======
+    "eslint": "^8.14.0",
+>>>>>>> origin/main
     "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "^4.4.0",
     "node-sass": "^7.0.1",
+    "prettier": "2.6.2",
     "sass-loader": "^12.6.0",
     "style-loader": "^3.3.1",
     "ts-node": "^10.7.0",

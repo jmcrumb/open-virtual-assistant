@@ -159,6 +159,7 @@ type Profile struct {
 
 type Plugin struct {
 	ID            string `json:"id"`
+	Name          string `json:"name"`
 	Publisher     string `json:"publisher"`
 	SourceLink    string `json:"source_link"`
 	About         string `json:"about"`

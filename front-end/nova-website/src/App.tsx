@@ -4,20 +4,25 @@ import "./styles.scss";
 import "./components/PluginPreview.css"
 import "./components/Rating.scss"
 import { ReactQueryDevtools } from "react-query/devtools";
-import { QueryClient, QueryClientProvider} from "react-query";
+import { QueryClient, QueryClientProvider } from "react-query";
 import Navbar from "./components/nav";
 import { BrowserRouter } from "react-router-dom";
 import PluginList from "./components/PluginList";
 
-
 const queryClient = new QueryClient();
 
 const App: React.FC = () => {
+<<<<<<< HEAD
 	const link = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.RxfKUJC5hsiimFi0JhJPrgHaHa%26pid%3DApi&f=1"
+=======
+
+  const debugMode: boolean = false;
+>>>>>>> origin/main
 
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
+<<<<<<< HEAD
         <Navbar />
         <PluginList data={
 			[{
@@ -43,6 +48,14 @@ const App: React.FC = () => {
 			}]
 		} />
     </QueryClientProvider>
+=======
+        <div className="base">
+          <Navbar />
+          <Sandbox />
+          <ReactQueryDevtools initialIsOpen={debugMode} />
+        </div>
+      </QueryClientProvider>
+>>>>>>> origin/main
     </BrowserRouter>
   );
 };

@@ -1,9 +1,9 @@
-import { AxiosProxyConfig } from 'axios';
+import { AxiosProxyConfig } from "axios";
 // import https from 'https';
 // import fs from 'fs';
 
 // export const backEndSource: string = 'http://127.0.0.1:443/';
-export const backEndSource: string = '/api/';
+export const BACKEND_SRC = "https://127.0.0.1:443/";
 
 // export const httpsProxy: AxiosProxyConfig = {
 //     protocol: 'https',
@@ -19,6 +19,6 @@ export const backEndSource: string = '/api/';
 // }
 
 // export const httpsAgent = new https.Agent({
-//   ca: caCrt, 
+//   ca: caCrt,
 //   keepAlive: false
 // });
