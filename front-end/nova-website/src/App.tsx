@@ -1,6 +1,7 @@
 import Sandbox from "./components/sandbox";
 import React from "react";
 import "./styles.scss";
+import "./components/PluginList.css"
 import "./components/PluginPreview.css"
 import "./components/Rating.scss"
 import { ReactQueryDevtools } from "react-query/devtools";
@@ -12,20 +13,15 @@ import PluginList from "./components/PluginList";
 const queryClient = new QueryClient();
 
 const App: React.FC = () => {
-<<<<<<< HEAD
 	const link = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.RxfKUJC5hsiimFi0JhJPrgHaHa%26pid%3DApi&f=1"
-=======
-
-  const debugMode: boolean = false;
->>>>>>> origin/main
 
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-<<<<<<< HEAD
         <Navbar />
         <PluginList data={
 			[{
+				"id": "1",
 				"thumbnail": link,
 				"name": "Surf Weather",
 				"author": "mcrumb",
@@ -33,6 +29,7 @@ const App: React.FC = () => {
 				"description": "Get surf conditions while your coffee brews! Instaly hear about estimated wave size, wind direction, and more."
 			},
 			{
+				"id": "2",
 				"thumbnail": link,
 				"name": "LocalTemps",
 				"author": "jhart12354",
@@ -40,6 +37,7 @@ const App: React.FC = () => {
 				"description": "Just ask for the weather to get all the info you'll need to dress comfortably for the day."
 			},
 			{
+				"id": "3",
 				"thumbnail": link,
 				"name": "Timer Clock",
 				"author": "amges",
@@ -48,14 +46,6 @@ const App: React.FC = () => {
 			}]
 		} />
     </QueryClientProvider>
-=======
-        <div className="base">
-          <Navbar />
-          <Sandbox />
-          <ReactQueryDevtools initialIsOpen={debugMode} />
-        </div>
-      </QueryClientProvider>
->>>>>>> origin/main
     </BrowserRouter>
   );
 };

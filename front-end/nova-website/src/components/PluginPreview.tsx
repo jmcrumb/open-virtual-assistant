@@ -2,10 +2,15 @@ import * as React from 'react';
 import Rating from './Rating';
 
 function PluginPreview(props) {
-	let {thumbnail, name, author, rating, description} = props
+	let {id, thumbnail, name, author, rating, description} = props
+
+	const route = () => {
+		// navigate to the plugin page based on id
+		console.log(id)
+	}
 
 	return (
-		<div className="PluginPreview">
+		<div className="PluginPreview" onClick={route}>
 			<img src={thumbnail} alt={name + " plugin thumbnail"} className="thumbnail" />
 			<div className="info">
 				<span className="name">{name}</span>

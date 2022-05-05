@@ -7,7 +7,7 @@ function PluginList(props) {
 
 	for (let plugin of data) {
 		plugins.push(
-			<PluginPreview thumbnail={plugin.thumbnail} name={plugin.name} author={plugin.author} rating={plugin.rating} description={plugin.description}/>
+			<PluginPreview id={plugin.id} thumbnail={plugin.thumbnail} name={plugin.name} author={plugin.author} rating={plugin.rating} description={plugin.description}/>
 		)
 	}
 
