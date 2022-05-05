@@ -1,9 +1,9 @@
-#from core.abstract_plugin import NovaPlugin
+from core.abstract_plugin import NovaPlugin
 from requests import get
 from json import loads
 import string
 
-class WeatherPlugin():
+class WeatherPlugin(NovaPlugin):
 
     def __init__(self):
         self.home = 'San Diego'
@@ -128,11 +128,3 @@ class WeatherPlugin():
             ' How\'s the weather or what\'s the weather like today?'
             ' To get the weather of a specific location, ask:'
             ' How\'s the weather in San Diego or what\'s the weather like in Seattle?')
-
-testPlugin = WeatherPlugin()
-print(testPlugin.execute('hello Nova, what is the weather like today'))
-print(testPlugin.execute('set my home location to seattle'))
-print(testPlugin.execute('what is the weather like today'))
-print(testPlugin.execute('can I get a full weather report'))
-print(testPlugin.execute('how does the weather look the next few days'))
-print()

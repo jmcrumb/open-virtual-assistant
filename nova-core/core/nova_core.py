@@ -52,9 +52,10 @@ class SyntaxTree:
 
 class AsyncPluginThreadManager:
 
-    def __init__(self, response_handler, CommandNotFound):
+    def __init__(self, response_handler, CommandNotFound, syntax_tree):
         self.active_threads: set = set()
         self.command_not_found = CommandNotFound()
+        self.syntax_tree = syntax_tree
 
         self.buffer: Queue = Queue()
         self.io_mutex: Semaphore = Semaphore()
@@ -69,24 +70,20 @@ class AsyncPluginThreadManager:
         t.start()
         self.active_threads.add(t)
 
-    def invoke(self, input_=None, unknown_input=False):
-        if unknown_input:
-            self.dispatch(self.command_not_found, '')
-            return
+    def secondary_invoke(self, input_=None):
         if not input_: 
             return
             
         command: str = input_.lower()
 
-        plugin: NovaPlugin = self.syntax_tree.match_command(command.lower())
-        
+        plugin: NovaPlugin = self.syntax_tree.match_command(command.lower()) #syntax_tree not known
+
         self.dispatch(plugin, command)
 
     def __del__(self):
         # TODO: kill recieve thread
         self.keep_alive = False
-        self.response_thread.join()
-            
+        self.response_thread.join()     
 
 class PluginThread(Thread):
 
@@ -101,7 +98,9 @@ class PluginThread(Thread):
             if response:
                 self.send_response(response)
             else:
-                self.manager.invoke(self.command)
+                self.manager.secondary_invoke(self.command)
+                self.manager.active_threads.discard(self)
+
 
         def send_response(self, response):
             self.manager.buffer.put(response)
@@ -131,7 +130,7 @@ class NovaCore:
         self.CommandNotFound = CommandNotFoundPlugin
         self.syntax_tree: SyntaxTree = SyntaxTree(self.CommandNotFound())
         self._initialize_plugins()
-        self.thread_manager = AsyncPluginThreadManager(response_handler, self.CommandNotFound)
+        self.thread_manager = AsyncPluginThreadManager(response_handler, self.CommandNotFound, self.syntax_tree)
 
     def _initialize_plugins(self):
         for plugin in self.plugins:
@@ -149,4 +148,3 @@ class NovaCore:
         plugin: NovaPlugin = self.syntax_tree.match_command(command.lower())
 
         self.thread_manager.dispatch(plugin, command)
-        self.mru_plugin = plugin

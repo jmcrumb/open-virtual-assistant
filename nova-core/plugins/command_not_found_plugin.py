@@ -6,4 +6,7 @@ class CommandNotFoundPlugin(NovaPlugin):
         return []
 
     def execute(self, command: str) -> str:
-        return 'I\'m sorry, I don\'t understand.'
+        return 'I\'m sorry, I don\'t understand'
+
+    def help_command(self, command: str) -> str:
+        return 'This command is used by the core to respond to users when there is an error'
