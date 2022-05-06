@@ -1,20 +1,20 @@
 
-import { Plugin, Review, useQueryPluginByID } from "../api/pluginStoreAPI";
+import { Plugin, Review } from "../api/pluginStoreAPI";
 import * as React from "react";
-import { useQueryClient } from "react-query";
 import Container from "@mui/material/Container";
 import { Box, Button, Card, CardActions, CardContent, Chip, Grid, Link, Modal, Paper, Rating, Skeleton, Stack, Typography } from "@mui/material";
 import ReactTimeAgo from 'react-time-ago';
 import CodeIcon from '@mui/icons-material/Code';
 import UpdateIcon from '@mui/icons-material/Update';
 import EditIcon from '@mui/icons-material/Edit';
-import { height } from "@mui/material/node_modules/@mui/system";
 import axios from "axios";
 import { BACKEND_SRC } from "../api/helper";
+import { useParams } from "react-router-dom";
 
 
-export function PluginViewPublic(props) {
+export function PluginViewPublic() {
   const styledElevation: number = 2;
+  const pluginId: string = useParams();
 
   // Plugin controls
   const [plugin, setPlugin] = React.useState(null);
@@ -23,11 +23,11 @@ export function PluginViewPublic(props) {
   let rating = null;
 
   React.useEffect(() => {
-    axios.get(`${BACKEND_SRC}plugin/${props.id}`).then((response) => {
+    axios.get(`${BACKEND_SRC}plugin/${pluginId}`).then((response) => {
       setPlugin(new Plugin(response.data));
     });
 
-    axios.get(`${BACKEND_SRC}review/${props.id}`).then((response) => {
+    axios.get(`${BACKEND_SRC}review/${pluginId}`).then((response) => {
       let temp = [];
       response.data.forEach((r: { [key: string]: any; }) => {
         temp.push(new Review(r));
