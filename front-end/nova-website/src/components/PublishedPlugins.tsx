@@ -6,11 +6,11 @@ import PluginList from "./PluginList";
 
 const link = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.RxfKUJC5hsiimFi0JhJPrgHaHa%26pid%3DApi&f=1"
 
-function PluginSearch(props) {
+function PublishedPlugins(props) {
 	const [plugins, setPlugins] = React.useState([])
 
 	React.useEffect(() => {	
-		axios.get(`${BACKEND_SRC}plugin/search/${props.query}`).then((response) => {
+		axios.get(`${BACKEND_SRC}plugin/publishedBy/${props.query}`).then((response) => {
 			if (!response.data) {
 				return
 			}
@@ -31,10 +31,10 @@ function PluginSearch(props) {
 	  }, []);
 
 	return (
-		<div className="PluginSearch">
+		<div className="PublishedPlugins">
 			<PluginList data={plugins} />
 		</div>
 	);
 }
 
-export default PluginSearch;
+export default PublishedPlugins;

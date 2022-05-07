@@ -2,15 +2,17 @@ import * as React from "react";
 import Container from "@mui/material/Container";
 import { PluginViewPublic } from "./plugin";
 import PluginSearch from "./PluginSearch";
+import PublishedPlugins from "./PublishedPlugins";
+import Login from "./Login";
 
 export default function Sandbox() {
-  const pluginID = "e54aa9d2-0e53-471c-b9d6-f59682e5abb6";
 
   return (
     <Container>
       {/* <Example /> */}
       {/* <PluginViewPublic id={pluginID} /> */}
-	  <PluginSearch query="t" />
+	  {/* <PublishedPlugins query="86ee5cd6-5c83-4fd3-b4d6-1c2064dcd918" /> */}
+	  <Login />
     </Container>
   );
 }
