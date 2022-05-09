@@ -31,7 +31,17 @@ func getProfileByID(c *gin.Context) {
 	var profile database.Profile
 	database.DB.Table("profile").Where("account_id = ?", id).First(&profile)
 	if profile.AccountID != "" {
-		c.JSON(http.StatusOK, profile)
+		var account database.Account
+		database.DB.Table("account").Where("id = ?", id).First(&account)
+
+		var pubProfile database.PublicProfile
+		pubProfile.AccountID = profile.AccountID
+		pubProfile.Bio = profile.Bio
+		pubProfile.Photo = profile.Photo
+		pubProfile.FirstName = account.FirstName
+		pubProfile.LastName = account.LastName
+
+		c.JSON(http.StatusOK, pubProfile)
 		return
 	}
 
@@ -125,6 +135,6 @@ func Route(router *gin.RouterGroup) {
 	router.PUT("/", middleware.AuthorizeJWT(), putAccount)
 	router.PUT("/reset-password", middleware.AuthorizeJWT(), putAccountPassword)
 
-	router.GET("/profiles/:id", getProfileByID)
-	router.PUT("/profiles", putProfile)
+	router.GET("/profile/:id", getProfileByID)
+	router.PUT("/profile", putProfile)
 }

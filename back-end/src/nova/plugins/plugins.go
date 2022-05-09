@@ -69,6 +69,15 @@ func getPlugin(c *gin.Context) {
 	c.JSON(http.StatusOK, plugin)
 }
 
+func getPluginByAccount(c *gin.Context) {
+	id := c.Param("id")
+
+	var plugins []database.Plugin
+	database.DB.Table("plugin").Where("publisher = ?", id).Find(&plugins)
+
+	c.JSON(http.StatusOK, plugins)
+}
+
 func searchPlugin(c *gin.Context) {
 	query := c.Param("query")
 
@@ -84,4 +93,5 @@ func Route(router *gin.RouterGroup) {
 	router.DELETE("/:id", middleware.AuthorizeJWT(), deletePlugin)
 	router.GET("/:id", middleware.CORSMiddleware(), getPlugin)
 	router.GET("/search/:query", searchPlugin)
+	router.GET("/search/account/:id", getPluginByAccount)
 }

@@ -157,6 +157,14 @@ type Profile struct {
 	Photo     []byte `json:"photo"`
 }
 
+type PublicProfile struct {
+	AccountID string `json:"account_id"`
+	Bio       string `json:"bio"`
+	Photo     []byte `json:"photo"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+}
+
 type Plugin struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
