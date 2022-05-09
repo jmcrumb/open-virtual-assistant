@@ -14,6 +14,12 @@
 .Home .profileInfo {
 	margin-top: 3rem;
 }
+.Home .profileInfo h1 {
+	color: #2F323A;
+}
+.Home .profileInfo .username {
+	color: #4497AA;
+}
 
 .Home h1 {
 	font-weight: normal;
