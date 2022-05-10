@@ -8,7 +8,7 @@ class WeatherPlugin(NovaPlugin):
     def __init__(self):
         self.home = 'San Diego'
         self.last_location = None
-        self.key = ''
+        self.key = '9cfee2c6b5f249f9919211624220704'
 
     def get_keywords(self) -> list:
         return ['weather', 'temperature']
@@ -113,7 +113,7 @@ class WeatherPlugin(NovaPlugin):
     def execute(self, command: str) -> str:
         location = self.home
         print('\n{}'.format(command))
-        if ('how' in command or 'what' in command or 'can'in command):
+        if ('how' in command or 'what' in command or 'can'in command or 'weather'in command):
             msg = self._get_weather(command, location)
         elif ('set' in command):
             msg = self._set_home(command)
