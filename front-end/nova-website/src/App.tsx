@@ -1,6 +1,7 @@
 import Sandbox from "./components/sandbox";
 import React from "react";
 import "./styles.scss";
+import "./components/PublishPlugin.css";
 import "./components/PluginList.css"
 import "./components/PluginPreview.css"
 import "./components/Rating.scss"
@@ -14,7 +15,7 @@ const App: React.FC = () => {
   return (
     <div className="base">
       <Navbar />
-      <Sandbox />
+	  <Sandbox />
     </div>
   );
 };
