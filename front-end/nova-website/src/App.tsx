@@ -12,10 +12,10 @@ import PluginList from "./components/PluginList";
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
-		<Navbar />
-		<Sandbox />
-    </BrowserRouter>
+    <div className="base">
+      <Navbar />
+      <Sandbox />
+    </div>
   );
 };
 
