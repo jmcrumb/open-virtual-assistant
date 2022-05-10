@@ -3,14 +3,21 @@ import { Review, Plugin } from "../api/pluginStoreAPI";
 import axios from "axios";
 import * as React from "react";
 import UserState from "../userState"
+import { getTextFieldUtilityClass } from "@mui/material";
 
-function InputField(props) {
+function inputField(props, ref) {
 	const {name, label, placeholder, lines, charLimit} = props
 	const input = React.useRef(null)
 	const counter = React.useRef(null)
 
+	React.useImperativeHandle(ref, () => ({
+		getText: () => {
+			console.log(input.current.value)
+			return input.current.innerText
+		}
+	}))
+
 	const onType = e => {
-		console.log("burger")
 		if (!charLimit) return
 		counter.current.innerText = e.target.value.length
 	}
@@ -44,21 +51,19 @@ function InputField(props) {
 		</div>
 	)
 }
+const InputField = React.forwardRef(inputField)
 
 function PublishPlugin() {
 	const sourceLink = React.useRef(null)
 	const pluginName = React.useRef(null)
 	const description = React.useRef(null)
 
-	const getInputText = input => {
-		return input.current.querySelector(".field").value
-	}
 	const onPublish = () => {
 		let plugin = new Plugin({
 			"publisher": UserState.getInstance().state["id"],
-			"name": getInputText(sourceLink),
-			"sourceLink": getInputText(pluginName),
-			"about": getInputText(description),
+			"name": sourceLink.current.getText(),
+			"sourceLink": pluginName.current.getText(),
+			"about": description.current.getText(),
 		})
 		axios.post(`${BACKEND_SRC}plugin`, plugin)
 		// need error handling and feedback to user about whether
