@@ -13,8 +13,8 @@ import { Plugin } from "../api/pluginStoreAPI";
 import { Skeleton } from "@mui/material";
 
 export default function ProfileView() {
-    // const accountId = useParams();
-    const accountId = "3bacffed-7da9-48a1-a9cf-9e89919ab0dc";
+    const accountId = useParams();
+    // const accountId = "3bacffed-7da9-48a1-a9cf-9e89919ab0dc";
 
     const [profile, setProfile] = React.useState(null);
     const [plugins, setPlugins] = React.useState(null);
