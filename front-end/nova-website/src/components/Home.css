@@ -31,7 +31,7 @@
 .Home .community, .Home .myDevice {
 	text-align: left;
 
-	width: min(100%, 400px);
+	width: unquote("min(100%, 400px)");
 }
 .Home .community h2 {
 	color: #525365;

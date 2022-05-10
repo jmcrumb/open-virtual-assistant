@@ -4,7 +4,7 @@
 	justify-content: center;
 	align-items: center;
 
-	width: min(400px, 100%);
+	width: unquote("min(100%, 400px)");
 	margin: auto;
 	gap: 2rem;
 

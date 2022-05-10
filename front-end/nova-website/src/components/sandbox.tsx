@@ -8,7 +8,6 @@ import { PluginViewPublic } from "./plugin";
 import PublishPlugin from "./PublishPlugin";
 
 export default function Sandbox() {
-
   return (
     <Container>
       {/* <Example /> */}
