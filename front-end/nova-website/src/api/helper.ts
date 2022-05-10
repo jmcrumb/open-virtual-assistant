@@ -1,24 +1,16 @@
-import { AxiosProxyConfig } from "axios";
-// import https from 'https';
-// import fs from 'fs';
+import UserState from "../userState";
 
-// export const backEndSource: string = 'http://127.0.0.1:443/';
 export const BACKEND_SRC = "https://127.0.0.1:443/";
 
-// export const httpsProxy: AxiosProxyConfig = {
-//     protocol: 'https',
-//     host: '127.0.0.1',
-//     port: 9000
-//   };
+export function getAxiosHeaders() {
+    let axiosHdrs = {
+        "Content-type": "application/json"
+    };
+    const userState: UserState = UserState.getInstance();
 
-// let caCrt: Buffer | undefined = undefined;
-// try {
-//     caCrt = fs.readFileSync('./server.crt')
-// } catch(err) {
-//     console.log('Make sure that the CA cert file is named ca.crt', err);
-// }
+    if("jwt_auth_token" in userState.state) {
+        axiosHdrs["Authorization"] = `Bearer ${userState.state["jwt_auth_token"]}`;
+    }
 
-// export const httpsAgent = new https.Agent({
-//   ca: caCrt,
-//   keepAlive: false
-// });
+    return axiosHdrs;
+}
