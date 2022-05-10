@@ -21,6 +21,7 @@ func postPlugin(c *gin.Context) {
 
 	auth.EnforceMiddlewareAuthentication(c, body.Publisher, func(id string) {
 		if err := database.DB.Table("plugin").Create(&body).Error; err != nil {
+			fmt.Println(err)
 			c.String(http.StatusBadRequest, fmt.Sprintf("invalid publisher id provided: %q", body.Publisher))
 			return
 		}

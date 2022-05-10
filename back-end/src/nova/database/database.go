@@ -176,6 +176,7 @@ type Plugin struct {
 }
 
 type NewPlugin struct {
+	Name       string `json:"name"`
 	Publisher  string `json:"publisher"`
 	SourceLink string `json:"source_link"`
 	About      string `json:"about"`

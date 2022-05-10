@@ -17,15 +17,33 @@ export default function ProfileView() {
     const accountId = "3bacffed-7da9-48a1-a9cf-9e89919ab0dc";
 
     const [profile, setProfile] = React.useState(null);
+    const [plugins, setPlugins] = React.useState(null);
 
     React.useEffect(() => {
         axios.get(`${BACKEND_SRC}account/profile/${accountId}`).then((response) => {
             console.log(response.data);
             setProfile(new PublicProfile(response.data));
         });
+
+        axios.get(`${BACKEND_SRC}plugin/search/account/${accountId}`).then((response) => {
+            let instantiated_plugins = [];
+
+            response.data.forEach((value) => {
+                instantiated_plugins.push(new Plugin(value));
+            });
+
+            console.log(instantiated_plugins);
+
+            setPlugins(instantiated_plugins);
+
+        });
     }, []);
 
-    if (profile == null) return null;
+    if (profile == null || plugins == null) return null;
+
+    const pluginList = (() => {
+        return plugins.map((plugin) => {(<Typography key={plugin.id}>{plugin.name}</Typography>)})
+    });
 
     return (
         <Container>
@@ -42,7 +60,9 @@ export default function ProfileView() {
                 </Container>
                 <Container>
                     <Typography>PUBLISHED PLUGINS</Typography>
-                    {/* <ProfilePublishedPlugins id={profile.account_id} /> */}
+                    <Stack>
+                        {pluginList()}
+                    </Stack>
                 </Container>
             </Stack>
 
@@ -66,30 +86,4 @@ function ProfilePhoto(props) {
             />
         );
     }
-}
-
-function ProfilePublishedPlugins(props) {
-    const accountId: string = props.id;
-
-    const [plugins, setPlugins] = React.useState(null);
-    
-    React.useEffect(() => {
-        axios.get(`${BACKEND_SRC}plugin/search/account/${accountId}`).then((response) => {
-            let instantiated_plugins = [];
-
-            response.data.forEach((value) => {
-                instantiated_plugins.push(new Plugin(value));
-            });
-
-            setPlugins(instantiated_plugins);
-        });
-    });
-
-    if(!plugins) return <Skeleton />;
-
-    return (
-        <Stack>
-            {plugins.map((plugin) => { (<Typography>{plugin.name}</Typography>) })}
-        </Stack>
-    );
 }
