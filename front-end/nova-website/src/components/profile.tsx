@@ -25,7 +25,7 @@ export default function ProfileView() {
         });
     }, []);
 
-    if (!profile) return <Skeleton></Skeleton>;
+    if (profile == null) return null;
 
     return (
         <Container>
@@ -42,7 +42,7 @@ export default function ProfileView() {
                 </Container>
                 <Container>
                     <Typography>PUBLISHED PLUGINS</Typography>
-                    <ProfilePublishedPlugins id={profile.account_id} />
+                    {/* <ProfilePublishedPlugins id={profile.account_id} /> */}
                 </Container>
             </Stack>
 

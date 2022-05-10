@@ -27,7 +27,7 @@ export default function SignUp() {
         >
             <Box sx={style}>
                 <Typography id="modal-modal-title" variant="h6" component="h2">
-                    Login
+                    Sign Up
                 </Typography>
                 <SignUpForm />
             </Box>

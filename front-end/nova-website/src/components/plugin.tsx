@@ -14,8 +14,8 @@ import { useParams } from "react-router-dom";
 
 export function PluginViewPublic() {
   const styledElevation: number = 2;
-  const pluginId = useParams();
-  // const pluginId= "3f094753-6d45-4897-a749-c51378ddbe13";
+  // const pluginId = useParams();
+  const pluginId= "3f094753-6d45-4897-a749-c51378ddbe13";
 
   // Plugin controls
   const [plugin, setPlugin] = React.useState(null);
