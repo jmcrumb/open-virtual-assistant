@@ -1,14 +1,18 @@
 import React from "react";
 import "./styles.scss";
+import "./components/PublishPlugin.css";
+import "./components/PluginList.css";
+import "./components/PluginPreview.css";
+import "./components/Rating.scss";
+import "./components/Home.css";
 import Navbar from "./components/nav";
 import Sandbox from "./components/sandbox";
 import Login from "./components/login";
 import { PluginViewPublic } from "./components/plugin";
 import SignUp from "./components/signup";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 const App: React.FC = () => {
-
   return (
     <div className="base">
       <Navbar />

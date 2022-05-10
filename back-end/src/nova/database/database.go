@@ -14,8 +14,8 @@ const (
 	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
-	password = "usdnova"
-	dbname   = "postgres"
+	password = "postgres"
+	dbname   = "postgres-test"
 )
 
 var DB *gorm.DB
