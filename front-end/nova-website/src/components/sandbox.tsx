@@ -1,11 +1,11 @@
 import * as React from "react";
-import ProfileView from "./profile";
+import ProfileView from "./ProfileView";
 import Container from "@mui/material/Container";
 import PluginSearch from "./PluginSearch";
 import PublishedPlugins from "./PublishedPlugins";
 import Login from "./Login";
 import Home from "./Home";
-import { PluginViewPublic } from "./plugin";
+import { PluginViewPublic } from "./PluginViewPublic";
 import PublishPlugin from "./PublishPlugin";
 
 export default function Sandbox() {

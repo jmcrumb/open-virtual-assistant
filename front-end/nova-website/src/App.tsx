@@ -5,10 +5,10 @@ import "./components/PluginList.css";
 import "./components/PluginPreview.css";
 import "./components/Rating.scss";
 import "./components/Home.css";
-import Navbar from "./components/nav";
+import Navbar from "./components/Navbar";
 import Sandbox from "./components/sandbox";
-import Login from "./components/login";
-import { PluginViewPublic } from "./components/plugin";
+import Login from "./components/Login";
+import { PluginViewPublic } from "./components/PluginViewPublic";
 import SignUp from "./components/signup";
 import { Routes, Route } from "react-router-dom";
 
