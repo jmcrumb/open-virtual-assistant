@@ -2,20 +2,21 @@ import { Account, Profile } from '../api/accountAPI';
 import { BACKEND_SRC } from '../api/helper';
 import axios from 'axios';
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 
 const defaultPhoto = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.OesLvyzDO6AvU_hYUAT4IAHaHa%26pid%3DApi&f=1"
 
 function TabLink(props) {
-	const {text, url} = props
+	const { text, url } = props
 
-	const onNavigate = () => {
-		// goto url
-	}
+
 
 	return (
-		<div className="TabLink" onClick={onNavigate}>
-			<span className="linkText">{text}</span>
-		</div>
+		<Link to={url}>
+			<div className="TabLink">
+				<span className="linkText">{text}</span>
+			</div>
+		</Link>
 	)
 }
 
@@ -26,7 +27,7 @@ function Home(props) {
 	})
 	const [photo, setPhoto] = React.useState([])
 
-	React.useEffect(() => {	
+	React.useEffect(() => {
 		axios.get(`${BACKEND_SRC}/account/${props.accountId}`).then((response) => {
 			let acct = new Account(response.data)
 			setAccountInfo({
@@ -39,7 +40,7 @@ function Home(props) {
 			let profile = new Profile(response.data)
 			setPhoto(profile.photo)
 		})
-	  }, []);
+	}, []);
 
 	return (
 		<div className="Home">
@@ -50,16 +51,15 @@ function Home(props) {
 			<div className="community">
 				<h2>COMMUNITY</h2>
 				<div className="tabs">
-					<TabLink text="Publish a plugin" url="/publish" />
-					<TabLink text="Delete a published plugin" url="/published" />
+					<TabLink text="Publish a plugin" url="plugin/publish" />
+					<TabLink text="Delete a published plugin" url="plugin/published" />
 				</div>
 			</div>
 			<div className="myDevice">
 				<h2>MY DEVICE</h2>
 				<div className="tabs">
-					<TabLink text="Install a plugin" url="/search" />
-					<TabLink text="Remove a plugin" url="/installed" />
-					<TabLink text="Manage plugin settings" url="/something" />
+					<TabLink text="Install a plugin" url="plugin/search" />
+					<TabLink text="Manage plugin settings" url="/" />
 				</div>
 			</div>
 		</div>

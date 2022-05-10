@@ -3,14 +3,16 @@ import * as React from "react";
 import axios from "axios";
 import { BACKEND_SRC } from "../api/helper";
 import PluginList from "./PluginList";
+import { useParams } from "react-router-dom";
 
 const link = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.RxfKUJC5hsiimFi0JhJPrgHaHa%26pid%3DApi&f=1"
 
-function PluginSearch(props) {
+function PluginSearch() {
+	const query = useParams();
 	const [plugins, setPlugins] = React.useState([])
 
 	React.useEffect(() => {	
-		axios.get(`${BACKEND_SRC}plugin/search/${props.query}`).then((response) => {
+		axios.get(`${BACKEND_SRC}plugin/search/${query}`).then((response) => {
 			if (!response.data) {
 				return
 			}

@@ -4,6 +4,7 @@ import axios from "axios";
 import * as React from "react";
 import UserState from "../userState"
 import { getTextFieldUtilityClass } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 function inputField(props, ref) {
 	const {name, label, placeholder, lines, charLimit} = props
@@ -54,9 +55,10 @@ function inputField(props, ref) {
 const InputField = React.forwardRef(inputField)
 
 function PublishPlugin() {
-	const sourceLink = React.useRef(null)
-	const pluginName = React.useRef(null)
-	const description = React.useRef(null)
+	const sourceLink = React.useRef(null);
+	const pluginName = React.useRef(null);
+	const description = React.useRef(null);
+	let navigate = useNavigate();
 
 	const onPublish = () => {
 		let plugin = new Plugin({
@@ -68,6 +70,7 @@ function PublishPlugin() {
 		axios.post(`${BACKEND_SRC}plugin`, plugin)
 		// need error handling and feedback to user about whether
 		// the request went through or not
+		navigate("/plugin/published", {replace: true});
 	}
 
 	return (
