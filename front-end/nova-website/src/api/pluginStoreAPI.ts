@@ -1,6 +1,3 @@
-import axios from "axios";
-import { BACKEND_SRC } from "./helper";
-
 export class Review {
     id: string;
     source_link: string;

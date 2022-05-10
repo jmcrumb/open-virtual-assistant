@@ -1,10 +1,3 @@
-import axios from "axios";
-import { useQuery } from "react-query";
-import { backEndSource } from "./helper";
-import https from "./http-common";
-
-// use react query, but note, designed to be used with react 17 so some issues may occur
-
 export class Account {
   id: string;
   email: string;
@@ -36,6 +29,17 @@ export class Profile {
     this.account_id = json.account_id;
     this.bio = json.bio;
     this.photo = json.photo;
+  }
+}
+
+export class PublicProfile extends Profile {
+  first_name: string;
+  last_name: string;
+
+  constructor(json: { [key: string]: any }) {
+    super(json);
+    this.first_name = json.first_name;
+    this.last_name = json.last_name;
   }
 }
 

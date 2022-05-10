@@ -37,6 +37,12 @@ const webpackConfig = (): Configuration => ({
       },
     ],
   },
+  devServer: {
+    port: 8080,
+    historyApiFallback: {
+      index: 'index.html'
+    }
+  },
   // devServer: {
   //   // proxy: { // proxy URLs to backend development server
   //   //   '/api': 'http://localhost:3000'
