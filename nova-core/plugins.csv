@@ -1,2 +1,3 @@
 Path,ClassName
 plugins.hello_world_plugin,HelloWorldPlugin
+plugins.weather_plugin.py,WeatherPlugin

@@ -60,7 +60,7 @@ class SyntaxTree:
 
 class AsyncPluginThreadManager:
 
-    def __init__(self, response_handler, CommandNotFound):
+    def __init__(self, response_handler, CommandNotFound, syntax_tree):
         self.active_threads: set = set()
         self.command_not_found = CommandNotFound
         self.mru_plugin: NovaPlugin = None
@@ -86,11 +86,20 @@ class AsyncPluginThreadManager:
         t.start()
         self.active_threads.add(t)
 
+    def secondary_invoke(self, input_=None):
+        if not input_: 
+            return
+            
+        command: str = input_.lower()
+
+        plugin: NovaPlugin = self.syntax_tree.match_command(command.lower()) #syntax_tree not known
+
+        self.dispatch(plugin, command)
+
     def __del__(self):
         # TODO: kill recieve thread
         self.keep_alive = False
-        self.response_thread.join()
-            
+        self.response_thread.join()     
 
 class PluginThread(Thread):
 
