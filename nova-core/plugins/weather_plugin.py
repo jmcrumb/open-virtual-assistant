@@ -112,7 +112,6 @@ class WeatherPlugin(NovaPlugin):
 
     def execute(self, command: str) -> str:
         location = self.home
-        print('\n{}'.format(command))
         if ('how' in command or 'what' in command or 'can'in command or 'weather'in command):
             msg = self._get_weather(command, location)
         elif ('set' in command):

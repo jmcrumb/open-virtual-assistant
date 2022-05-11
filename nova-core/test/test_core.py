@@ -21,20 +21,15 @@ class NovaCoreTests(unittest.TestCase):
         with patch('sys.stdout', new = StringIO()) as fake_out:
             self.core.invoke('hello')
             sleep(1)
-            self.assertTrue('Hello! My name is Nova.' in fake_out.getvalue())
+            self.assertTrue('Hello! My name is Nova' in fake_out.getvalue())
 
-    def test_invoke_secondary_command(self):
-        with patch('sys.stdout', new = StringIO()) as fake_out:
-            self.core.invoke('hello')
-            sleep(1)
-            self.core.invoke('nice to meet you')
-            sleep(1)
-            self.assertTrue('To teach me more fun things to do, go to the plugin store.' in fake_out.getvalue())
+    def tearDown(self):
+        self.core.syntax_tree.root = {}
 
 class SyntaxTreeTests(unittest.TestCase):
     
     def setUp(self):
-        self.syntax_tree: SyntaxTree = SyntaxTree(CommandNotFoundPlugin())
+        self.syntax_tree: SyntaxTree = SyntaxTree()
         self.syntax_tree.add_plugin(HelloWorldPlugin())
 
     def test_add_plugin(self):
@@ -47,6 +42,9 @@ class SyntaxTreeTests(unittest.TestCase):
     def test_match_command_multilevel(self):
         plugin: NovaPlugin = self.syntax_tree.match_command('hello there')
         self.assertTrue(isinstance(plugin, HelloWorldPlugin))
+
+    def tearDown(self):
+        self.syntax_tree.root = {}  
         
 class AsyncPluginThreadManagerTests(unittest.TestCase):
     
@@ -59,16 +57,9 @@ class AsyncPluginThreadManagerTests(unittest.TestCase):
     def test_dispatch_and_recieve(self):
         hw_plugin: HelloWorldPlugin = HelloWorldPlugin()
         with patch('sys.stdout', new = StringIO()) as fake_out:
-            self.thread_manager.dispatch(hw_plugin, 'hello', is_secondary=False)
+            self.thread_manager.dispatch('hello', hw_plugin)
             sleep(1)
-            self.assertTrue('Hello! My name is Nova.' in fake_out.getvalue())
-
-    def test_dispatch_and_recieve_secondary(self):
-        hw_plugin: HelloWorldPlugin = HelloWorldPlugin()
-        with patch('sys.stdout', new = StringIO()) as fake_out:
-            self.thread_manager.dispatch(hw_plugin, 'nice to meet you', is_secondary=True)
-            sleep(1)
-            self.assertTrue('To teach me more fun things to do, go to the plugin store.' in fake_out.getvalue())
+            self.assertTrue('Hello! My name is Nova' in fake_out.getvalue(), msg=f'output was {fake_out.getvalue()}')   
 
 if __name__ == '__main__':
     unittest.main()

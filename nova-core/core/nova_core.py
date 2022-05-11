@@ -49,9 +49,7 @@ class SyntaxTree:
             if token in branch:
                 depth: int = self.match_command_rec(branch, tokenized_command, 0)
                 if depth > max_depth: max_depth = depth
-        print(f'm1 {self.hits}')
-        print(f'm2 {max_depth}')
-        print(f'm3 {self.hits[max_depth][0] if len(self.hits) > 0 else self.not_found}')
+
         return self.hits[max_depth][0] if len(self.hits) > 0 else self.not_found
 
     def match_command_rec(self, branch: dict, tokenized_command: list, depth: int) -> int:
@@ -73,17 +71,15 @@ class AsyncPluginThreadManager:
 
         self.buffer: Queue = Queue()
         self.io_mutex: Semaphore = Semaphore()
-        # TODO: need to implement a mechanism which can't listen while it is speaking -- check for 'nova' else release?
-
         self.keep_alive = True
         self.response_thread = ResponseLoop(self, response_handler)
+
         self.response_thread.start()
 
     def dispatch(self, command: str, plugin=None, try_again=True):
         if not plugin:
             if not self.mru_plugin:
                 plugin = self.syntax_tree.match_command(command)
-                print(f'dispatch {plugin}')
             else:
                 plugin = self.mru_plugin
         t: Thread = PluginThread(self, plugin, command, try_again=try_again)
@@ -91,7 +87,6 @@ class AsyncPluginThreadManager:
         self.active_threads.add(t)
 
     def __del__(self):
-        # TODO: kill recieve thread
         self.keep_alive = False
         self.response_thread.join()  
 
@@ -106,7 +101,6 @@ class PluginThread(Thread):
 
         def run(self):
             response = self.plugin.execute(self.command)
-            print(f'thread {self.plugin.__class__} {self.command} {response}')
             if response:
                 if self.plugin != self.manager.command_not_found:
                     self.manager.mru_plugin = self.plugin
