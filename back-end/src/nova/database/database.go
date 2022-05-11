@@ -157,35 +157,14 @@ type Profile struct {
 	Photo     []byte `json:"photo"`
 }
 
-type Review struct {
-	ID string `json:"id"`
-	SourceReview string `json:"source_review"`
-	Account string `json:"account"`
-	Plugin string `json:"plugin"`
-	Rating float32 `json:"rating"`
-	Content string `json:"content"`
+type PublicProfile struct {
+	AccountID string `json:"account_id"`
+	Bio       string `json:"bio"`
+	Photo     []byte `json:"photo"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
-type NewReview struct {
-	SourceReview string `json:"source_review"`
-	Account string `json:"account"`
-	Plugin string `json:"plugin"`
-	Rating float32 `json:"rating"`
-	Content string `json:"content"`
-}
-
-type Report struct {
-	ID string `json:"id"`
-	Account string `json:"account"`
-	Plugin string `json:"plugin"`
-	Content string `json:"content"`
-}
-
-type NewReport struct {
-	Account string `json:"account"`
-	Plugin string `json:"plugin"`
-	Content string `json:"content"`
-}
 type Plugin struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
@@ -197,6 +176,7 @@ type Plugin struct {
 }
 
 type NewPlugin struct {
+	Name       string `json:"name"`
 	Publisher  string `json:"publisher"`
 	SourceLink string `json:"source_link"`
 	About      string `json:"about"`

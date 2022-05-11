@@ -38,16 +38,26 @@ CREATE TABLE profile (
 
 CREATE TABLE plugin (
     id UUID DEFAULT uuid_generate_v4 (),
+    name varchar(150) NOT NULL,
     publisher UUID NOT NULL,
-    source_link varchar(150) NOT NULL,
+    source_link varchar(150) NOT NULL UNIQUE,
     about text DEFAULT '',
     download_count integer DEFAULT 0,
     published_on date DEFAULT CURRENT_DATE,
+    tsv_name tsvector,
     PRIMARY KEY(id),
     CONSTRAINT plugin_publisher_fk
         FOREIGN KEY(publisher)
         REFERENCES account(id)
 );
+
+CREATE TRIGGER plugin_name_tsv_update BEFORE INSERT OR UPDATE
+ON plugin FOR EACH ROW EXECUTE PROCEDURE
+tsvector_update_trigger(
+	tsv_name, 'pg_catalog.english', name
+);
+
+CREATE INDEX index_plugin_name_tsv ON plugin USING gin (tsv_name);
 
 CREATE TABLE review (
     id UUID DEFAULT uuid_generate_v4 (),

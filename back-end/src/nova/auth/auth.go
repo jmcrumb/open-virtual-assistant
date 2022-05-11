@@ -35,10 +35,11 @@ func Route(router *gin.RouterGroup) {
 	var loginController LoginController = LoginHandler(jwtService)
 
 	router.POST("/login", func(ctx *gin.Context) {
-		token := loginController.Login(ctx)
+		token, accountId := loginController.Login(ctx)
 		if token != "" {
 			ctx.JSON(http.StatusOK, gin.H{
-				"token": token,
+				"token":      token,
+				"account_id": accountId,
 			})
 		} else {
 			ctx.JSON(http.StatusUnauthorized, nil)

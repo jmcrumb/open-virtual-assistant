@@ -1,17 +1,23 @@
-import { AccountAPI, useQueryAccountByID } from "../api/accountAPI";
 import * as React from "react";
-import { AccountCard } from "./account";
+import ProfileView from "./ProfileView";
 import Container from "@mui/material/Container";
-import { PluginViewPublic } from "./plugin";
-import Login from "./login";
+import PluginSearch from "./PluginSearch";
+import PublishedPlugins from "./PublishedPlugins";
+import Login from "./Login";
+import Home from "./Home";
+import { PluginViewPublic } from "./PluginViewPublic";
+import PublishPlugin from "./PublishPlugin";
 
 export default function Sandbox() {
-  const pluginID = "3f094753-6d45-4897-a749-c51378ddbe13";
-
   return (
     <Container>
       {/* <Example /> */}
-      <Login />
+      {/* <Login /> */}
+      <PublishPlugin />
+      {/* <PluginViewPublic id={pluginID} /> */}
+      {/* <PublishedPlugins query="86ee5cd6-5c83-4fd3-b4d6-1c2064dcd918" /> */}
+      {/* <Login /> */}
+      <Home />
     </Container>
   );
 }

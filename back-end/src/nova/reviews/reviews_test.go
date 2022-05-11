@@ -29,7 +29,6 @@ func queryReviewRows() []interface{} {
 	for _, review := range reviews {
 		rows = append(rows, review)
 	}
-	AuthorizedUser: account,
 
 	return rows
 }
@@ -205,11 +204,11 @@ func TestDeleteReview(t *testing.T) {
 
 	tests := []apitest.APITest{
 		{
-			URL:    fmt.Sprintf("%v/%v", plugin, review.ID),
-			Body:   "",
-			Status: http.StatusNoContent,
-			Result: "",
-			Rows:   []interface{}{},
+			URL:            fmt.Sprintf("%v/%v", plugin, review.ID),
+			Body:           "",
+			Status:         http.StatusNoContent,
+			Result:         "",
+			Rows:           []interface{}{},
 			AuthorizedUser: account,
 		},
 	}

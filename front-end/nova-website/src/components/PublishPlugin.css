@@ -1,0 +1,73 @@
+.PublishPlugin {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+
+	width: unquote("min(100%, 400px)");
+	margin: auto;
+	gap: 2rem;
+
+	font-family: sans-serif;
+}
+.PublishPlugin h1 {
+	width: 100%;
+	
+	text-align: center;
+	font-size: 1.2rem;
+	color: #525365;
+}
+.PublishPlugin h2 {
+	font-size: 0.8rem;
+	color: #707288;
+	margin: 0 0 0.2rem;
+	text-transform: uppercase;
+}
+
+.PublishPlugin .InputField {
+	width: 100%;
+}
+.PublishPlugin .InputField .field {
+	box-sizing: border-box;
+
+	width: 100%;
+	margin: 0;
+	padding: 0.5rem 1rem;
+
+	background: #D9D9D9;
+	border-radius: 5px;
+	border: none;
+	outline: none;
+
+	font-size: 0.9rem;
+	font-family: sans-serif;
+	color: #2F323A;
+}
+.PublishPlugin .InputField .charCount {
+	width: 100%;
+
+	text-align: right;
+	color: #8C8D90;
+	font-size: 0.8rem;
+}
+.PublishPlugin button.publish {
+	font-size: 1rem;
+	padding: 0.5rem 1rem;
+	margin-bottom: 1rem;
+
+	background-color: transparent;
+	box-shadow: none;
+	outline: none;
+	border: 2px solid #2F323A;
+	color: #2F323A;
+
+	border-radius: 5px;
+}
+.PublishPlugin button.publish:hover {
+	cursor: pointer;
+}
+.PublishPlugin button.publish:active {
+	cursor: pointer;
+	color: #6ca16c;
+	border-color: #6ca16c;
+}

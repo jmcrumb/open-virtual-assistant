@@ -9,7 +9,7 @@ import (
 
 //login contorller interface
 type LoginController interface {
-	Login(ctx *gin.Context) string
+	Login(ctx *gin.Context) (string, string)
 }
 
 type loginController struct {
@@ -30,16 +30,16 @@ func AuthenticateUser(credential *LoginCredentials) (bool, database.Account) {
 	return (account.ID != "" && ComparePassword(account, credential.Password)), account
 }
 
-func (controller *loginController) Login(ctx *gin.Context) string {
+func (controller *loginController) Login(ctx *gin.Context) (string, string) {
 	var credential LoginCredentials
 	err := ctx.ShouldBind(&credential)
 	if err != nil {
-		return "no data found"
+		return "no data found", ""
 	}
 	isUserAuthenticated, account := AuthenticateUser(&credential)
 	if isUserAuthenticated {
 		database.DB.Table("account").Where("id = ?", account.ID).UpdateColumn("last_login", time.Now())
-		return controller.jWtService.GenerateToken(account.ID)
+		return controller.jWtService.GenerateToken(account.ID), account.ID
 	}
-	return ""
+	return "", ""
 }

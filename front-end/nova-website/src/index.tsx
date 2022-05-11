@@ -1,32 +1,20 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import App from "./App";
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en.json';
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Login from "./components/login";
-import SignUp from "./components/signup";
-import { PluginViewPublic } from "./components/plugin";
+import { BrowserRouter } from "react-router-dom";
 
-TimeAgo.addDefaultLocale(en)
+TimeAgo.addDefaultLocale(en);
 
-const routes = (
-  <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />}>
-          <Route path="account">
-            <Route path="login" element={<Login />} />
-            <Route path="sign-up" element={<SignUp />} />
-          </Route>
-          <Route path="plugin">
-            <Route path=":id" element={<PluginViewPublic />}/>
-          </Route>
-        </Route>
-      </Routes>
-    </BrowserRouter>
-    <App />
-  </React.StrictMode>
+const root = ReactDOM.createRoot(
+  document.getElementById("root")
 );
 
-ReactDOM.render(routes, document.getElementById("root"));
+root.render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+);

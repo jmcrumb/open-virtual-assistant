@@ -1,7 +1,3 @@
-import axios from "axios";
-import { useQuery, useQueryClient } from "react-query";
-import { BACKEND_SRC } from "./helper";
-
 export class Review {
     id: string;
     source_link: string;

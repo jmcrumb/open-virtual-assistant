@@ -33,9 +33,15 @@ const webpackConfig = (): Configuration => ({
       },
       {
         test: /\.s?css$/,
-        use: ["style-loader", "css-loader"],
+        use: ["style-loader", "css-loader", "sass-loader"],
       },
     ],
+  },
+  devServer: {
+    port: 8080,
+    historyApiFallback: {
+      index: 'index.html'
+    }
   },
   // devServer: {
   //   // proxy: { // proxy URLs to backend development server

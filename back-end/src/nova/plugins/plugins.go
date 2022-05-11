@@ -26,6 +26,7 @@ func postPlugin(c *gin.Context) {
 
 	auth.EnforceMiddlewareAuthentication(c, body.Publisher, func(id string) {
 		if err := database.DB.Table("plugin").Create(&body).Error; err != nil {
+			fmt.Println(err)
 			c.String(http.StatusBadRequest, fmt.Sprintf("invalid publisher id provided: %q", body.Publisher))
 			return
 		}
@@ -74,6 +75,15 @@ func getPlugin(c *gin.Context) {
 	c.JSON(http.StatusOK, plugin)
 }
 
+func getPluginByAccount(c *gin.Context) {
+	id := c.Param("id")
+
+	var plugins []database.Plugin
+	database.DB.Table("plugin").Where("publisher = ?", id).Find(&plugins)
+
+	c.JSON(http.StatusOK, plugins)
+}
+
 func searchPlugin(c *gin.Context) {
 	query := c.Param("query")
 
@@ -82,12 +92,24 @@ func searchPlugin(c *gin.Context) {
 
 	c.JSON(http.StatusOK, plugins)
 }
+
+func getPluginByPublisher(c *gin.Context) {
+	publisher := c.Param("publisher")
+
+	var plugins []database.Plugin
+	database.DB.Table("plugin").Where("publisher = ?", publisher).Find(&plugins)
+
+	c.JSON(http.StatusOK, plugins)
+}
+
 func Route(router *gin.RouterGroup) {
 	router.POST("/", middleware.AuthorizeJWT(), postPlugin)
 	router.PUT("/", middleware.AuthorizeJWT(), putPlugin)
 	router.DELETE("/:id", middleware.AuthorizeJWT(), deletePlugin)
 	router.GET("/:id", middleware.CORSMiddleware(), getPlugin)
 	router.GET("/search/:query", searchPlugin)
+	router.GET("/search/account/:id", getPluginByAccount)
+	router.GET("/publishedBy/:publisher", getPluginByPublisher)
 }
 func postPluginReview(c *gin.Context) {
 	var body database.NewReview

@@ -3,6 +3,7 @@ import { BACKEND_SRC } from "../api/helper";
 import axios from "axios";
 import * as React from "react";
 import UserState from "../userState";
+import { useNavigate } from "react-router-dom";
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -27,7 +28,7 @@ export default function SignUp() {
         >
             <Box sx={style}>
                 <Typography id="modal-modal-title" variant="h6" component="h2">
-                    Login
+                    Sign Up
                 </Typography>
                 <SignUpForm />
             </Box>
@@ -42,6 +43,7 @@ function SignUpForm() {
     const [fName, setFName] = React.useState('');
     const [lName, setLName] = React.useState('');
     const [pwError, setPWError] = React.useState(false);
+    let navigate = useNavigate();
 
 
     const handleEmailChange = (event) => {
@@ -82,6 +84,7 @@ function SignUpForm() {
                 UserState.getInstance().state["jwt_auth_token"] = response.data["token"];
             });
         });
+        navigate("/", {replace: true});
     });
 
     return (
@@ -95,21 +98,21 @@ function SignUpForm() {
         >
             <TextField
                 required
-                id="outlined-required"
+                id="outlined-required-email"
                 label="Email"
                 value={email}
                 onChange={handleEmailChange}
             />
              <TextField
                 required
-                id="outlined-required"
+                id="outlined-required-fname"
                 label="First Name"
                 value={fName}
                 onChange={handleFNChange}
             />
              <TextField
                 required
-                id="outlined-required"
+                id="outlined-required-lname"
                 label="Last Name"
                 value={lName}
                 onChange={handleLNChange}
@@ -122,7 +125,7 @@ function SignUpForm() {
                 onChange={handlePwChange}
             />
             <TextField
-                id="outlined-password-input"
+                id="outlined-verify-password-input"
                 label="Re-enter Password"
                 type="password"
                 autoComplete="current-password"
