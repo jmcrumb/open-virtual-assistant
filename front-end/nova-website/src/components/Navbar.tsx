@@ -16,7 +16,7 @@ import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import { Link, useNavigate } from "react-router-dom";
-import UserState from "userState";
+import UserState from "../userState";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
