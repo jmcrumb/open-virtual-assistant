@@ -159,8 +159,9 @@ export default function Navbar() {
   );
 
   const navigator = useNavigate();
-  const onSearch = ((event) => {
-    navigator(`/plugin/search/${encodeURIComponent(event.target.value)}`);
+  const onSearch = (event => {
+		if (event.keyCode != 13) return;
+    	navigator(`/plugin/search/${encodeURIComponent(event.target.value)}`);
   });
 
   return (
@@ -184,7 +185,7 @@ export default function Navbar() {
             <StyledInputBase
               placeholder="Search…"
               inputProps={{ "aria-label": "search" }}
-              onChange={onSearch}
+              onKeyDown={onSearch}
             />
           </Search>
           <Box sx={{ flexGrow: 1 }} />
