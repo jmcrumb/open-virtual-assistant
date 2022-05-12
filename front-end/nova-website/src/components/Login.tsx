@@ -1,18 +1,14 @@
-import { Modal, Box, Typography, TextField, Button } from "@mui/material";
+import { Modal, Box, Typography, TextField, Button, Container } from "@mui/material";
 import { BACKEND_SRC } from "../api/helper";
 import axios from "axios";
 import * as React from "react";
-import UserState from "../userState";
 import { Link, useNavigate } from "react-router-dom";
+import { GlobalStateContext } from "../globalState";
 
 export default function Login() {
 
     return (
-        <Modal
-            open={true}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-        >
+        <Container>
             <Box>
                 <Typography id="modal-modal-title" variant="h6" component="h2">
                     Login
@@ -28,7 +24,7 @@ export default function Login() {
                     </Button>
                 </Link>
             </Box>
-        </Modal>
+        </Container>
     );
 }
 
@@ -37,6 +33,7 @@ function LoginForm() {
     const [email, setEmail] = React.useState('');
     const [pw, setPW] = React.useState('');
     let navigate = useNavigate();
+    const context = React.useContext(GlobalStateContext);
 
 
     const handleEmailChange = (event) => {
@@ -49,17 +46,32 @@ function LoginForm() {
 
     const loginSubmit = ((event) => {
         event.preventDefault();
+
+        let data = {
+            id: "",
+            token: ""
+        }
         axios.post(`${BACKEND_SRC}auth/login`, {
             email: email,
             password: pw
         }).then((response) => {
-            let state = UserState.getInstance().state;
-            state["jwt_auth_token"] = response.data["token"];
-            state["id"] = response.data["account_id"];
+            data = {
+                id: response.data.account_id,
+                token: response.data.token
+            };
+
+            context.setId(data.id);
+            context.setToken(data.token);
+
             navigate("/", {replace: true});
+
         }).catch((error) => {
+            console.log(error);
             alert("Login failed");
         });
+
+
+        
     });
 
     return (
