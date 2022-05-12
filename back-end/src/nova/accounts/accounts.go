@@ -13,16 +13,24 @@ import (
 func getAccountByID(c *gin.Context) {
 	id := c.Param("id")
 
-	auth.EnforceMiddlewareAuthentication(c, id, func(id string) {
-		var account database.Account
-		database.DB.Table("account").Where("id = ?", id).First(&account)
-		if account.ID != "" {
-			c.JSON(http.StatusOK, account)
-			return
-		}
-		c.String(http.StatusNotFound, fmt.Sprintf("no account found with id: %v", id))
+	var account database.Account
+	database.DB.Table("account").Where("id = ?", id).First(&account)
+	if account.ID != "" {
+		c.JSON(http.StatusOK, account)
 		return
-	})
+	}
+	c.String(http.StatusNotFound, fmt.Sprintf("no account found with id: %v", id))
+
+	// auth.EnforceMiddlewareAuthentication(c, id, func(id string) {
+	// 	var account database.Account
+	// 	database.DB.Table("account").Where("id = ?", id).First(&account)
+	// 	if account.ID != "" {
+	// 		c.JSON(http.StatusOK, account)
+	// 		return
+	// 	}
+	// 	c.String(http.StatusNotFound, fmt.Sprintf("no account found with id: %v", id))
+	// 	return
+	// })
 }
 
 func getProfileByID(c *gin.Context) {
