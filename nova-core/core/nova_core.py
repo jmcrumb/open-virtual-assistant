@@ -1,3 +1,4 @@
+import json
 from queue import Queue
 from threading import Semaphore, Thread
 
@@ -9,11 +10,19 @@ from core.abstract_plugin import NovaPlugin
 
 import core.plugin_registry as plugin_registry
 
+NOT_FOUND_PLUGIN = CommandNotFoundPlugin()
+
 class SyntaxTree:
 
-    def __init__(self, commandNotFoundPlugin: NovaPlugin):
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(SyntaxTree, cls).__new__(cls)
+            cls.instance._initialize()
+        return cls.instance
+
+    def _initialize(self):
         self.root: dict = {}
-        self.not_found: NovaPlugin = commandNotFoundPlugin
+        self.not_found: NovaPlugin = NOT_FOUND_PLUGIN
         self.hits: dict = {}
 
     def add_plugin(self, plugin: NovaPlugin):
@@ -40,6 +49,7 @@ class SyntaxTree:
             if token in branch:
                 depth: int = self.match_command_rec(branch, tokenized_command, 0)
                 if depth > max_depth: max_depth = depth
+
         return self.hits[max_depth][0] if len(self.hits) > 0 else self.not_found
 
     def match_command_rec(self, branch: dict, tokenized_command: list, depth: int) -> int:
@@ -47,58 +57,61 @@ class SyntaxTree:
             return self.match_command_rec(branch[tokenized_command[0]], tokenized_command[1:], depth + 1)
         else:
             if not (depth in self.hits): self.hits[depth] = []
-            self.hits[depth].append(branch['plugin'])
+            if 'plugin' in branch:
+                self.hits[depth].append(branch['plugin'])
             return depth
 
 class AsyncPluginThreadManager:
 
     def __init__(self, response_handler, CommandNotFound):
         self.active_threads: set = set()
-        self.command_not_found = CommandNotFound()
+        self.command_not_found = CommandNotFound
+        self.mru_plugin: NovaPlugin = None
+        self.syntax_tree = SyntaxTree()
 
         self.buffer: Queue = Queue()
         self.io_mutex: Semaphore = Semaphore()
-        # TODO: need to implement a mechanism which can't listen while it is speaking -- check for 'nova' else release?
-
         self.keep_alive = True
         self.response_thread = ResponseLoop(self, response_handler)
+
         self.response_thread.start()
 
-    def dispatch(self, plugin: NovaPlugin, command: str, is_secondary: bool=False):
-        t: Thread = PluginThread(self, plugin, command, is_secondary)
+    def dispatch(self, command: str, plugin=None, try_again=True):
+        if not plugin:
+            if not self.mru_plugin:
+                plugin = self.syntax_tree.match_command(command)
+            else:
+                plugin = self.mru_plugin
+        t: Thread = PluginThread(self, plugin, command, try_again=try_again)
         t.start()
         self.active_threads.add(t)
 
     def __del__(self):
-        # TODO: kill recieve thread
         self.keep_alive = False
-        self.response_thread.join()
-            
+        self.response_thread.join()  
 
 class PluginThread(Thread):
 
-        def __init__(self, manager: AsyncPluginThreadManager, plugin: NovaPlugin, command: str, is_secondary: bool=False):
+        def __init__(self, manager: AsyncPluginThreadManager, plugin: NovaPlugin, command: str, try_again=True):
             super().__init__()
-            self.manager = manager
-            self.plugin = plugin
-            self.command = command
-            self.is_secondary = is_secondary
+            self.manager: AsyncPluginThreadManager = manager
+            self.plugin: NovaCore = plugin
+            self.command: str = command
+            self.try_again: bool = try_again
 
         def run(self):
-            response = None
-            if self.is_secondary:
-                response = self.plugin.execute_secondary_command(self.command)
-                if response:
-                    self.send_response(response)
-                else:
-                    self.send_response(self.manager.command_not_found.execute(self.command))
+            response = self.plugin.execute(self.command)
+            if response:
+                if self.plugin != self.manager.command_not_found:
+                    self.manager.mru_plugin = self.plugin
+                self.send_response(response)
+            elif self.try_again:
+                best_fit_plugin: NovaPlugin = self.manager.syntax_tree.match_command(self.command)
+                if best_fit_plugin != self.manager.command_not_found:
+                    self.manager.mru_plugin = best_fit_plugin
+                self.manager.dispatch(self.command, best_fit_plugin, try_again=False)
             else:
-                response = self.plugin.execute(self.command)
-                if response:
-                    self.send_response(response)
-                else:
-                    self.is_secondary = True
-                    self.run()
+                self.manager.dispatch(self.command, self.manager.command_not_found)
 
         def send_response(self, response):
             self.manager.buffer.put(response)
@@ -125,11 +138,9 @@ class NovaCore:
         for Plugin in plugin_registry.registry:
             self.plugins.append(Plugin())
 
-        self.CommandNotFound = CommandNotFoundPlugin
-        self.syntax_tree: SyntaxTree = SyntaxTree(self.CommandNotFound())
+        self.syntax_tree: SyntaxTree = SyntaxTree()
         self._initialize_plugins()
-        self.mru_plugin: NovaPlugin = None
-        self.thread_manager = AsyncPluginThreadManager(response_handler, self.CommandNotFound)
+        self.thread_manager = AsyncPluginThreadManager(response_handler, NOT_FOUND_PLUGIN)
 
     def _initialize_plugins(self):
         for plugin in self.plugins:
@@ -144,9 +155,4 @@ class NovaCore:
             
         command: str = input_.lower()
 
-        plugin: NovaPlugin = self.syntax_tree.match_command(command.lower())
-        if self.mru_plugin and isinstance(plugin, self.CommandNotFound):
-            self.thread_manager.dispatch(self.mru_plugin, command, is_secondary=True)
-        else:
-            self.thread_manager.dispatch(plugin, command)
-            self.mru_plugin = plugin
+        self.thread_manager.dispatch(command)

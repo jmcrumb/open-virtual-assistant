@@ -2,8 +2,8 @@ import { Modal, Box, Typography, TextField, Button } from "@mui/material";
 import { BACKEND_SRC } from "../api/helper";
 import axios from "axios";
 import * as React from "react";
-import UserState from "../userState";
 import { useNavigate } from "react-router-dom";
+import { GlobalStateContext } from "../globalState";
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -44,6 +44,7 @@ function SignUpForm() {
     const [lName, setLName] = React.useState('');
     const [pwError, setPWError] = React.useState(false);
     let navigate = useNavigate();
+    const context = React.useContext(GlobalStateContext);
 
 
     const handleEmailChange = (event) => {
@@ -70,19 +71,29 @@ function SignUpForm() {
 
     const signUpSubmit = ((event) => {
         event.preventDefault();
+
+        let data = {
+            id: "",
+            token: ""
+        }
         axios.post(`${BACKEND_SRC}account/`, {
             email: email,
             password: pw,
             first_name: fName,
             last_name: lName
         }).then((response) => {
-            UserState.getInstance().state["id"] = response.data.id;
             axios.post(`${BACKEND_SRC}auth/login`, {
                 email: email,
                 password: pw
             }).then((response) => {
-                UserState.getInstance().state["jwt_auth_token"] = response.data["token"];
+                data = {
+                    id: response.data.account_id,
+                    token: response.data.token
+                }
             });
+
+            context.setId(data.id);
+            context.setToken(data.token);
         });
         navigate("/", {replace: true});
     });

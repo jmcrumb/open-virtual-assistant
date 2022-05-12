@@ -1,4 +1,6 @@
-import UserState from "../userState";
+import React from "react";
+import { GlobalStateContext } from "../globalState";
+
 
 export const BACKEND_SRC = "https://127.0.0.1:443/";
 
@@ -6,10 +8,10 @@ export function getAxiosHeaders() {
     let axiosHdrs = {
         "Content-type": "application/json"
     };
-    const userState: UserState = UserState.getInstance();
+    const context = React.useContext(GlobalStateContext);
 
-    if("jwt_auth_token" in userState.state) {
-        axiosHdrs["Authorization"] = `Bearer ${userState.state["jwt_auth_token"]}`;
+    if(context.token != "") {
+        axiosHdrs["Authorization"] = `Bearer ${context.token}`;
     }
 
     return axiosHdrs;
