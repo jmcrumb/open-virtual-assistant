@@ -3,15 +3,16 @@ import * as React from 'react';
 import PluginPreview from './PluginPreview';
 import axios from 'axios';
 import { Plugin } from "../api/pluginStoreAPI";
+import { useLocation } from 'react-router-dom';
 
 const link = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.RxfKUJC5hsiimFi0JhJPrgHaHa%26pid%3DApi&f=1"
 
-function PluginList(props) {
-	let { data } = props
+function PluginList() {
 	const [plugins, setPlugins] = React.useState([])
 
-	React.useEffect(() => {	
-		axios.get(`${BACKEND_SRC}plugin/search/${data.toString()}`).then((response) => {
+	React.useEffect(() => {
+		const data = new URLSearchParams(useLocation().search).get("query");
+		axios.get(`${BACKEND_SRC}plugin/search/${JSON.stringify(data)}`).then((response) => {
 			if (!response.data) {
 				return
 			}
@@ -31,8 +32,9 @@ function PluginList(props) {
 		});
 	  }, []);
 
-	for (let plugin of data) {
-		plugins.push(
+	let pluginElements = []
+	for (let plugin of plugins) {
+		pluginElements.push(
 			<PluginPreview
 				id={plugin.id}
 				thumbnail={plugin.thumbnail}
@@ -46,7 +48,17 @@ function PluginList(props) {
 
 	return (
 		<div className="PluginList">
-			{plugins}
+			{
+			(pluginElements) ?
+			(
+				pluginElements
+			) :
+			(
+				<div className="placeholder">
+					Search for a plugin in the search bar!
+				</div>
+			)
+			}
 		</div>
 	);
 }
