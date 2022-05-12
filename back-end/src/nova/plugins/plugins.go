@@ -1,11 +1,6 @@
 package plugins
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-	"github.com/jmcrumb/nova/database"
-)
 	"fmt"
 	"net/http"
 

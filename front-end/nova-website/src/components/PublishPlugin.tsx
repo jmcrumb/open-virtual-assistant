@@ -2,14 +2,14 @@ import { BACKEND_SRC } from "../api/helper";
 import { Review, Plugin } from "../api/pluginStoreAPI";
 import axios from "axios";
 import * as React from "react";
-import UserState from "../userState"
 import { getTextFieldUtilityClass } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { GlobalStateContext } from "../globalState";
 
 function inputField(props, ref) {
-	const {name, label, placeholder, lines, charLimit} = props
-	const input = React.useRef(null)
-	const counter = React.useRef(null)
+	const {name, label, placeholder, lines, charLimit} = props;
+	const input = React.useRef(null);
+	const counter = React.useRef(null);
 
 	React.useImperativeHandle(ref, () => ({
 		getText: () => {
@@ -55,6 +55,7 @@ function inputField(props, ref) {
 const InputField = React.forwardRef(inputField)
 
 function PublishPlugin() {
+	const context = React.useContext(GlobalStateContext);
 	const sourceLink = React.useRef(null);
 	const pluginName = React.useRef(null);
 	const description = React.useRef(null);
@@ -62,7 +63,7 @@ function PublishPlugin() {
 
 	const onPublish = () => {
 		let plugin = new Plugin({
-			"publisher": UserState.getInstance().state["id"],
+			"publisher": context.id,
 			"name": sourceLink.current.getText(),
 			"sourceLink": pluginName.current.getText(),
 			"about": description.current.getText(),

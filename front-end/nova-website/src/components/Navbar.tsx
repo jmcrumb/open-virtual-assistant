@@ -16,7 +16,7 @@ import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import { Link, useNavigate } from "react-router-dom";
-import UserState from "userState";
+import { GlobalStateContext } from "../globalState";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -59,6 +59,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function Navbar() {
+  const context = React.useContext(GlobalStateContext);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     React.useState<null | HTMLElement>(null);
@@ -100,7 +101,7 @@ export default function Navbar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <Link to={`/profile/${UserState.getInstance().state.id}`}><MenuItem onClick={handleMenuClose}>Profile</MenuItem></Link>
+      <Link to={`/profile/${context.id}`}><MenuItem onClick={handleMenuClose}>Profile</MenuItem></Link>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
     </Menu>
   );

@@ -3,6 +3,7 @@ import { BACKEND_SRC } from '../api/helper';
 import axios from 'axios';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { GlobalStateContext } from '../globalState';
 
 const defaultPhoto = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.OesLvyzDO6AvU_hYUAT4IAHaHa%26pid%3DApi&f=1"
 
@@ -24,11 +25,12 @@ function Home(props) {
 	const [accountInfo, setAccountInfo] = React.useState({
 		"name": "",
 		"id": "",
-	})
-	const [photo, setPhoto] = React.useState([])
+	});
+	const [photo, setPhoto] = React.useState([]);
+	const context = React.useContext(GlobalStateContext);
 
 	React.useEffect(() => {
-		axios.get(`${BACKEND_SRC}/account/${props.accountId}`).then((response) => {
+		axios.get(`${BACKEND_SRC}account/${context.id}`).then((response) => {
 			let acct = new Account(response.data)
 			setAccountInfo({
 				"name": acct.first_name,
@@ -36,7 +38,7 @@ function Home(props) {
 			})
 		});
 
-		axios.get(`${BACKEND_SRC}/profiles/${props.accountId}`).then(response => {
+		axios.get(`${BACKEND_SRC}acount/profile/${context.id}`).then(response => {
 			let profile = new Profile(response.data)
 			setPhoto(profile.photo)
 		})

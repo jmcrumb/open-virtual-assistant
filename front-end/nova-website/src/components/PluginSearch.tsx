@@ -5,36 +5,12 @@ import { BACKEND_SRC } from "../api/helper";
 import PluginList from "./PluginList";
 import { useParams } from "react-router-dom";
 
-const link = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.RxfKUJC5hsiimFi0JhJPrgHaHa%26pid%3DApi&f=1"
-
 function PluginSearch() {
-	const query = useParams();
-	const [plugins, setPlugins] = React.useState([])
-
-	React.useEffect(() => {	
-		axios.get(`${BACKEND_SRC}plugin/search/${query}`).then((response) => {
-			if (!response.data) {
-				return
-			}
-			let temp = []
-			response.data.forEach(p => {
-				p = new Plugin(p)
-				temp.push({
-					"id": p.id,
-					"thumbnail": link,
-					"name": p.name,
-					"author": p.publisher,
-					"rating": 5,
-					"description": p.about,
-				});
-			});
-			setPlugins(temp);
-		});
-	  }, []);
+	const { query } = useParams();
 
 	return (
 		<div className="PluginSearch">
-			<PluginList data={plugins} />
+			<PluginList data={ query } />
 		</div>
 	);
 }

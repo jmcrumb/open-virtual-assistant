@@ -11,7 +11,7 @@ function PluginPreview(props) {
 	}
 
 	return (
-		<Link to={`plugin/${id}`}>
+		<Link to={`/plugin/${id}`}>
 			<div className="PluginPreview">
 				<img src={thumbnail} alt={name + " plugin thumbnail"} className="thumbnail" />
 				<div className="info">
