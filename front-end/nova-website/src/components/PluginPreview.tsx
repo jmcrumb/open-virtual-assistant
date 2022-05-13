@@ -5,11 +5,6 @@ import Rating from './Rating';
 function PluginPreview(props) {
 	let { id, thumbnail, name, author, rating, description } = props
 
-	const route = () => {
-		// navigate to the plugin page based on id
-		console.log(id)
-	}
-
 	return (
 		<Link to={`/plugin/${id}`}>
 			<div className="PluginPreview">

@@ -10,8 +10,6 @@ const defaultPhoto = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%
 function TabLink(props) {
 	const { text, url } = props
 
-
-
 	return (
 		<Link to={url}>
 			<div className="TabLink">
@@ -21,7 +19,7 @@ function TabLink(props) {
 	)
 }
 
-function Home(props) {
+function Home() {
 	const [accountInfo, setAccountInfo] = React.useState({
 		"name": "",
 		"id": "",
@@ -30,13 +28,14 @@ function Home(props) {
 	const context = React.useContext(GlobalStateContext);
 
 	React.useEffect(() => {
-		axios.get(`${BACKEND_SRC}account/${context.id}`).then((response) => {
+		axios.get(`${BACKEND_SRC}account/${context.id}`)
+		.then((response) => {
 			let acct = new Account(response.data)
 			setAccountInfo({
 				"name": acct.first_name,
 				"id": acct.id,
 			})
-		});
+		})
 
 		axios.get(`${BACKEND_SRC}acount/profile/${context.id}`).then(response => {
 			let profile = new Profile(response.data)

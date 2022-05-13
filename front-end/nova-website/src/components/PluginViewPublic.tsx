@@ -1,4 +1,3 @@
-
 import { Plugin, Review } from "../api/pluginStoreAPI";
 import * as React from "react";
 import Container from "@mui/material/Container";
@@ -15,6 +14,7 @@ import { useParams } from "react-router-dom";
 export function PluginViewPublic() {
   const styledElevation: number = 2;
   const pluginId = useParams();
+  console.log(pluginId)
 
   // Plugin controls
   const [plugin, setPlugin] = React.useState(null);
@@ -23,11 +23,11 @@ export function PluginViewPublic() {
   let rating = null;
 
   React.useEffect(() => {
-    axios.get(`${BACKEND_SRC}plugin/${pluginId}`).then((response) => {
+    axios.get(`${BACKEND_SRC}plugin/${pluginId.id}`).then((response) => {
       setPlugin(new Plugin(response.data));
     });
 
-    axios.get(`${BACKEND_SRC}review/${pluginId}`).then((response) => {
+    axios.get(`${BACKEND_SRC}review/${pluginId.id}`).then((response) => {
       let temp = [];
       response.data.forEach((r: { [key: string]: any; }) => {
         temp.push(new Review(r));
