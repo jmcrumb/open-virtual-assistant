@@ -1,0 +1,46 @@
+.Publish {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+
+	width: unquote("min(100%, 400px)");
+	margin: auto;
+	gap: 2rem;
+
+	font-family: sans-serif;
+}
+.Publish h1 {
+	width: 100%;
+	
+	text-align: center;
+	color: #525365;
+}
+.Publish h2 {
+	font-size: 0.8rem;
+	color: #707288;
+	margin: 0 0 0.2rem;
+	text-transform: uppercase;
+}
+
+.Publish button{
+	font-size: 1rem;
+	padding: 0.5rem 1rem;
+	margin-bottom: 1rem;
+
+	background-color: transparent;
+	box-shadow: none;
+	outline: none;
+	border: 2px solid #2F323A;
+	color: #2F323A;
+
+	border-radius: 5px;
+}
+.Publish button.publish:hover {
+	cursor: pointer;
+}
+.Publish button.publish:active {
+	cursor: pointer;
+	color: #6ca16c;
+	border-color: #6ca16c;
+}

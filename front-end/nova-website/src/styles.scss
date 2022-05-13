@@ -7,7 +7,18 @@ body {
 }
 
 html { 
-  font-size: 20px; 
+  font-size: 20px;
+  font-family: sans-serif;
+}
+
+a, a:visited {
+	text-decoration: none;
+	font-family: sans-serif;
+
+	color: #2F323A;
+}
+h1 {
+	font-size: 1.5rem;
 }
 
 .wrapper {

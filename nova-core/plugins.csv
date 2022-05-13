@@ -3,3 +3,4 @@ plugins.hello_world_plugin,HelloWorldPlugin
 plugins.weather_plugin,WeatherPlugin
 plugins.time_plugin,TimePlugin
 plugins.wiki_plugin,WikiPlugin
+plugins.joke_plugin,JokePlugin

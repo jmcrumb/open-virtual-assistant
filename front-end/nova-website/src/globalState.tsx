@@ -17,7 +17,7 @@ interface GlobalStateInterface {
 const GlobalStateContext = React.createContext<Partial<GlobalStateInterface>>({});
 
 const GlobalStateProvider = ({ children }) => {
-    const [id, setIdInternal] = React.useState("3bacffed-7da9-48a1-a9cf-9e89919ab0dc");
+    const [id, setIdInternal] = React.useState("86ee5cd6-5c83-4fd3-b4d6-1c2064dcd918");
     const [token, setTokenInternal] = React.useState("");
 
     const setId = ((val) => { setIdInternal(val) });
