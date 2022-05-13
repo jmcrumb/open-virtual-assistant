@@ -9,4 +9,5 @@ registry=[
 	TimePlugin,
 	WikiPlugin,
 	JokePlugin,
+	RecipePlugin
 ]
