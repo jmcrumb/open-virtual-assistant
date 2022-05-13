@@ -46,7 +46,7 @@ export class Plugin {
     id: string;
     name: string;
     publisher: string;
-    sourceLink: string;
+    source_link: string;
     about: string;
     download_count: number;
     published_on: Date;
@@ -56,7 +56,7 @@ export class Plugin {
         this.id = json.id;
         this.name = json.name;
         this.publisher = json.publisher;
-        this.sourceLink = json.sourceLink;
+        this.source_link = json.source_link;
         this.about = json.about;
         this.download_count = json.download_count;
         this.published_on = json.published_on;
