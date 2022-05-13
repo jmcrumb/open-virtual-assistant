@@ -42,12 +42,14 @@ class SyntaxTree:
     def match_command(self, command: str) -> NovaPlugin:
         tokenized_command: list[str] = command.split(' ')
         branch: dict = self.root
-        self.hits = {}
+        self.hits: dict = {}
         max_depth: int = 0
 
-        for token in tokenized_command:
+        #for token in tokenized_command:
+        for i in range(len(tokenized_command)):
+            token = tokenized_command[i]
             if token in branch:
-                depth: int = self.match_command_rec(branch, tokenized_command, 0)
+                depth: int = self.match_command_rec(branch, tokenized_command[i:], 0)
                 if depth > max_depth: max_depth = depth
 
         return self.hits[max_depth][0] if len(self.hits) > 0 else self.not_found
