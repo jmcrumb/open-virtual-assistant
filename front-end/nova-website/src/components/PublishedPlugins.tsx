@@ -12,8 +12,6 @@ function PublishedPlugins() {
 	const context = React.useContext(GlobalStateContext);
 
 	React.useEffect(() => {
-		// const query = new URLSearchParams(search).get("id")
-		// console.log(query)
 		axios.get(`${BACKEND_SRC}plugin/publishedBy/${context.id}`).then((response) => {
 			if (!response.data) {
 				return
