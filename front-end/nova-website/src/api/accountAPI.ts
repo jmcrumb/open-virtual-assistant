@@ -42,14 +42,3 @@ export class PublicProfile extends Profile {
     this.last_name = json.last_name;
   }
 }
-
-export function useQueryAccountByID() {
-  const accountID = "29b744e6-0a2f-48a9-aeb0-1a162f546763";
-  return useQuery(["account", accountID], async () => {
-    const { data } = await axios.get(
-      `https://127.0.0.1:443/account/${accountID}`
-    );
-    return new Account(data);
-  });
-}
-
