@@ -8,7 +8,7 @@ class WeatherPlugin(NovaPlugin):
     def __init__(self):
         self.home = 'San Diego'
         self.last_location = None
-        self.key = ''
+        self.key = '9cfee2c6b5f249f9919211624220704'
 
     def get_keywords(self) -> list:
         return ['weather', 'temperature']
