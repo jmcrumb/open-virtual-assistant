@@ -13,7 +13,7 @@ class JokePlugin(NovaPlugin):
 
 	def execute(self, command: str) -> str:
 		self.last += 1
-		if self.last > len(self.jokes):
+		if self.last >= len(self.jokes):
 			self.last = 0
 
 		return self.jokes[self.last]
